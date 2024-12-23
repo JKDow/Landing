@@ -1,8 +1,15 @@
 <script setup>
+import Counter from '../components/Counter.vue'
+import GridCard from '../components/GridCard.vue'
 </script>
 
 <template>
-    <main>
-        <h1>Home 2</h1>
-    </main>
+    <GridCard>
+        <template #heading>
+            Counter
+        </template>
+        <template #content>
+            <Counter />
+        </template>
+    </GridCard>
 </template>
