@@ -5,9 +5,10 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "npm run wasm-release && vite build",
     "preview": "vite preview",
-    "wasm": "wasm-pack build --target web --no-typescript --out-dir ../src/wasm/ --out-name wasm ./wasm/"
+    "wasm": "wasm-pack build --target web --no-typescript --out-dir ../src/wasm/ --out-name wasm ./wasm/",
+    "wasm-release": "wasm-pack build --release --target web --no-typescript --out-dir ../src/wasm/ --out-name wasm ./wasm/"
   },
   "dependencies": {
     "vue": "^3.5.13",
