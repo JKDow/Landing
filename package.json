@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "npm run wasm-release && vite build",
     "preview": "vite preview",
-    "wasm": "wasm-pack build --target web --no-typescript --out-dir ../src/wasm/ --out-name wasm ./wasm/",
+    "wasm": "wasm-pack build --dev --target web --no-typescript --out-dir ../src/wasm/ --out-name wasm ./wasm/",
     "wasm-release": "wasm-pack build --release --target web --no-typescript --out-dir ../src/wasm/ --out-name wasm ./wasm/"
   },
   "dependencies": {

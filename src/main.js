@@ -11,6 +11,8 @@ app.mount('#app')
 
 // Initialize WASM after the Vue app is mounted
 init().then(() => {
+    console.log("Wasm loaded");
+    console.log("App started");
     const canvas = document.getElementById('background');
 
     const resizeCanvas = () => {
@@ -20,7 +22,7 @@ init().then(() => {
     resizeCanvas();
     window.addEventListener('resize', resizeCanvas);
 
-    const particleSystem = new ParticleSystem('background', 0.001);
+    const particleSystem = new ParticleSystem('background', 0.001, 4, 50);
 
     function render() {
         particleSystem.update_and_render();

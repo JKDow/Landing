@@ -29,6 +29,8 @@ import ScrollSelector from '../components/ScrollSelector.vue'
                 <ContentCard>
                     <template #content>
                         <Counter />
+                        <div class="" id="wasm-window">
+                        </div>
                     </template>
                 </ContentCard>
             </div>
