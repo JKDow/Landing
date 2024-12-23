@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "wasm": "wasm-pack build --target web --no-typescript --out-dir ../src/wasm/ --out-name wasm ./wasm/"
   },
   "dependencies": {
     "vue": "^3.5.13",
@@ -15,9 +16,11 @@
   "devDependencies": {
     "@vitejs/plugin-vue": "^5.2.1",
     "autoprefixer": "^10.4.20",
+    "copyfiles": "^2.4.1",
     "postcss": "^8.4.49",
     "tailwindcss": "^3.4.17",
     "vite": "^6.0.1",
-    "vite-plugin-vue-devtools": "^7.6.5"
+    "vite-plugin-vue-devtools": "^7.6.5",
+    "vite-plugin-wasm": "^3.4.1"
   }
 }
