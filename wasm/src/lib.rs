@@ -1,11 +1,115 @@
-pub mod run;
 pub mod gpu;
 pub mod night_sky;
+pub mod run;
 pub mod star;
 
+use std::sync::Arc;
+
+use night_sky::NightSky;
 use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
 use web_sys::{CanvasRenderingContext2d, HtmlCanvasElement};
+use winit::dpi::PhysicalSize;
+use winit::event::ElementState;
+use winit::event::Event;
+use winit::event::KeyEvent;
+use winit::event::WindowEvent;
+use winit::event_loop::EventLoop;
+use winit::keyboard::KeyCode;
+use winit::keyboard::PhysicalKey;
+use winit::platform::web::EventLoopExtWebSys;
+use winit::platform::web::WindowBuilderExtWebSys;
+use winit::window::WindowBuilder;
+
+#[wasm_bindgen]
+pub async fn run_stars(canvas_id: String) {
+    console_log::init_with_level(log::Level::Info).expect("Couldn't initialize logger");
+    std::panic::set_hook(Box::new(console_error_panic_hook::hook));
+    log::info!("Started wasm logger");
+    let window = web_sys::window().ok_or("No window available").unwrap();
+    let document = window.document().ok_or("No document available").unwrap();
+    let canvas = document
+        .get_element_by_id(&canvas_id)
+        .ok_or("Canvas not found")
+        .unwrap();
+    let canvas: web_sys::HtmlCanvasElement = canvas
+        .dyn_into()
+        .map_err(|_| "Failed to cast to HtmlCanvasElement")
+        .unwrap();
+
+    let event_loop = EventLoop::new().expect("Failed to create event loop");
+    // Use `winit` to wrap the canvas in a `Window`:
+    let window = Arc::new(
+        WindowBuilder::new()
+            .with_inner_size(PhysicalSize::new(800, 600)) // Default size
+            .with_canvas(Some(canvas)) // Attach to the existing canvas
+            .build(&event_loop)
+            .map_err(|e| JsValue::from_str(&format!("Failed to create window: {:?}", e)))
+            .unwrap(),
+    );
+
+    log::info!("Setup window and linked canvas");
+
+    // Initialize NightSky
+    let mut sky = NightSky::new(window).await;
+    let mut surface_configured = false;
+    log::info!("Running event loop");
+    event_loop.spawn(move |event, control_flow| match event {
+        Event::Resumed => {
+            log::debug!("Resumed");
+        }
+        Event::WindowEvent {
+            ref event,
+            window_id,
+        } if window_id == sky.window().id() => {
+            if !sky.input(event) {
+                match event {
+                    WindowEvent::CloseRequested
+                    | WindowEvent::KeyboardInput {
+                        event:
+                            KeyEvent {
+                                state: ElementState::Pressed,
+                                physical_key: PhysicalKey::Code(KeyCode::Escape),
+                                ..
+                            },
+                        ..
+                    } => control_flow.exit(),
+                    WindowEvent::Resized(physical_size) => {
+                        log::info!("Resized {:?}", physical_size);
+                        surface_configured = true;
+                        sky.resize(*physical_size);
+                    }
+                    WindowEvent::RedrawRequested => {
+                        // This tells winit that we want another frame after this one
+                        sky.window().request_redraw();
+                        if !surface_configured {
+                            return;
+                        }
+                        sky.update();
+                        match sky.render() {
+                            Ok(_) => {}
+                            // Reconfigure the surface if it's lost or outdated
+                            Err(wgpu::SurfaceError::Lost | wgpu::SurfaceError::Outdated) => {
+                                sky.resize(sky.size())
+                            }
+                            // The system is out of memory, we should probably quit
+                            Err(wgpu::SurfaceError::OutOfMemory) => {
+                                log::error!("OutOfMemory");
+                                control_flow.exit();
+                            }
+                            // This happens when the a frame takes too long to present
+                            Err(wgpu::SurfaceError::Timeout) => {
+                                log::warn!("Surface timeout")
+                            }
+                        }
+                    }
+                    _ => {}
+                }
+            }
+        }
+        _ => {}
+    });
+}
 
 #[wasm_bindgen]
 pub struct Particle {

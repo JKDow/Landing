@@ -12,7 +12,7 @@ use winit::{
 use crate::gpu::state::State;
 use wasm_bindgen::prelude::*;
 
-#[cfg_attr(target_arch = "wasm32", wasm_bindgen(start))]
+#[wasm_bindgen]
 pub async fn run() {
     // check if there is a logger
     console_log::init_with_level(log::Level::Info).expect("Couldn't initialize logger");

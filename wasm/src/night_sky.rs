@@ -6,8 +6,8 @@ use winit::{event::WindowEvent, window::Window};
 
 use crate::star::Star;
 
-pub struct NightSky<'a> {
-    surface: wgpu::Surface<'a>,
+pub struct NightSky {
+    surface: wgpu::Surface<'static>,
     device: wgpu::Device,
     queue: wgpu::Queue,
     config: wgpu::SurfaceConfiguration,
@@ -19,15 +19,15 @@ pub struct NightSky<'a> {
     particle_count: u32,
 }
 
-impl<'a> NightSky<'a> {
+impl NightSky {
     // Creating some of the wgpu types requires async code
-    pub async fn new(window: Arc<Window>) -> NightSky<'a> {
+    pub async fn new(window: Arc<Window>) -> NightSky {
         let size = window.inner_size();
 
-        let instance = wgpu::Instance::new(wgpu::InstanceDescriptor {
+        let instance = Box::leak(Box::new(wgpu::Instance::new(wgpu::InstanceDescriptor {
             backends: wgpu::Backends::GL,
             ..Default::default()
-        });
+        })));
 
         let surface = instance
             .create_surface(window.clone())
@@ -77,8 +77,6 @@ impl<'a> NightSky<'a> {
             view_formats: vec![],
             desired_maximum_frame_latency: 2,
         };
-
-        let clear_color = wgpu::Color::BLACK;
 
         let shader = device.create_shader_module(wgpu::include_wgsl!("./stars.wgsl"));
         let render_pipeline_layout =
@@ -183,7 +181,29 @@ impl<'a> NightSky<'a> {
         false
     }
 
-    pub fn update(&mut self) {}
+    pub fn update(&mut self) {
+        self.update_particles();
+    }
+
+    pub fn update_particles(&mut self) {
+        let mut particles = vec![
+            Star {
+                position: [0.0, 0.0], // Example, replace with actual logic
+                color: [1.0, 0.5, 0.5, 1.0],
+                size: 5.0,
+            };
+            self.particle_count as usize
+        ];
+
+        // Update positions, colors, etc.
+        for (i, particle) in particles.iter_mut().enumerate() {
+            particle.position[0] = (i as f32) % self.size.width as f32;
+            particle.position[1] = (i as f32) % self.size.height as f32;
+        }
+
+        self.queue
+            .write_buffer(&self.particle_buffer, 0, bytemuck::cast_slice(&particles));
+    }
 
     pub fn render(&mut self) -> Result<(), wgpu::SurfaceError> {
         let output = self.surface.get_current_texture()?;
@@ -211,7 +231,8 @@ impl<'a> NightSky<'a> {
                 timestamp_writes: None,
             });
             render_pass.set_pipeline(&self.render_pipeline);
-            render_pass.draw(0..3, 0..1);
+            render_pass.set_vertex_buffer(0, self.particle_buffer.slice(..));
+            render_pass.draw(0..self.particle_count, 0..1); // Draw all particles
         }
         self.queue.submit(std::iter::once(encoder.finish()));
         output.present();
