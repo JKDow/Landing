@@ -3,14 +3,16 @@ import App from './App.vue'
 import router from './router'
 import './index.css'
 
-import init, { ParticleSystem, run_stars } from './wasm/wasm.js';
+import init, { NightSky } from './wasm/wasm.js';
 
 const app = createApp(App)
 app.use(router)
 app.mount('#app')
 
 // Initialize WASM after the Vue app is mounted
-init().then(() => {
+async function run() {
+    await init();
+
     console.log("Wasm loaded");
     const canvas = document.getElementById('background');
 
@@ -21,8 +23,21 @@ init().then(() => {
     resizeCanvas();
     window.addEventListener('resize', resizeCanvas);
 
-    //run_stars('background');
+    const nightSky = await new NightSky(canvas, "#fcba03", 100);
 
+    function render() {
+        nightSky.update_and_render();
+        requestAnimationFrame(render);
+    }
+    render();
+}
+
+run().catch((err) => {
+    console.error('Failed to initialize WASM:', err);
+});
+
+
+    /*
     const particleSystem = new ParticleSystem('background', 0.001, 4, 50);
 
     function render() {
@@ -31,6 +46,4 @@ init().then(() => {
     }
 
     render();
-}).catch((err) => {
-    console.error('Failed to initialize WASM:', err);
-});
+    */
