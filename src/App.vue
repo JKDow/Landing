@@ -14,7 +14,7 @@ import { RouterLink, RouterView } from 'vue-router'
             </div>
         </header>
 
-        <main class="p-3 grow w-full z-10 relative">
+        <main class="hidden p-3 grow w-full z-10 relative">
             <RouterView />
         </main>
     </div>

@@ -15,15 +15,18 @@ async function run() {
 
     console.log("Wasm loaded");
     const canvas = document.getElementById('background');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    const nightSky = await new NightSky(canvas, "#0A0A0A", 700);
 
     const resizeCanvas = () => {
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
+        nightSky.resize(window.innerWidth, window.innerHeight);
     };
-    resizeCanvas();
-    window.addEventListener('resize', resizeCanvas);
 
-    const nightSky = await new NightSky(canvas, "#fcba03", 100);
+    window.addEventListener('resize', resizeCanvas);
 
     function render() {
         nightSky.update_and_render();
@@ -37,13 +40,13 @@ run().catch((err) => {
 });
 
 
-    /*
-    const particleSystem = new ParticleSystem('background', 0.001, 4, 50);
+/*
+const particleSystem = new ParticleSystem('background', 0.001, 4, 50);
 
-    function render() {
-        particleSystem.update_and_render();
-        requestAnimationFrame(render);
-    }
+function render() {
+    particleSystem.update_and_render();
+    requestAnimationFrame(render);
+}
 
-    render();
-    */
+render();
+*/

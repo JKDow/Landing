@@ -3,7 +3,8 @@ use web_sys::HtmlCanvasElement;
 
 use crate::nightsky::{
     pipeline::{
-        begin_render_pass, configure_surface, create_instance, create_render_pipeline, create_star_buffer, create_surface, request_adapter, request_device_and_queue
+        begin_render_pass, configure_surface, create_instance, create_render_pipeline,
+        create_star_buffer, create_surface, request_adapter, request_device_and_queue,
     }, star::Star, utils::{hex_to_wgpu_color, setup_logger}
 };
 
@@ -38,6 +39,9 @@ impl NightSky {
         let clear_color = hex_to_wgpu_color(&clear_color).unwrap();
         log::info!("Created surface configuration and color: {:?}", clear_color);
         let stars = Star::generate(star_count as usize);
+        for star in &stars {
+            log::info!("{:?}", star);
+        }
         let star_buffer = create_star_buffer(&device, &stars);
 
         let render_pipeline = create_render_pipeline(&device, &surface_config);
@@ -65,7 +69,7 @@ impl NightSky {
         self.surface_config.width = width;
         self.surface_config.height = height;
         self.surface.configure(&self.device, &self.surface_config);
-        log::info!("Resized surface to {}x{}", width, height);
+        //log::info!("Resized surface to {}x{}", width, height);
     }
 
     fn render(&self) {
@@ -77,8 +81,8 @@ impl NightSky {
         {
             let mut render_pass = begin_render_pass(&mut encoder, &view, self.clear_color);
             render_pass.set_pipeline(&self.render_pipeline);
-            render_pass.set_vertex_buffer(0, self.star_buffer.slice(..));
-            render_pass.draw(0..self.star_count, 0..1);
+            render_pass.set_vertex_buffer(0, self.star_buffer.slice(..)); // Buffer for star instances
+            render_pass.draw(0..4, 0..self.star_count as u32); // Draw 4 vertices per instance
         }
         self.submit(encoder);
         frame.present();
