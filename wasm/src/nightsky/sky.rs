@@ -3,9 +3,12 @@ use web_sys::HtmlCanvasElement;
 
 use crate::nightsky::{
     pipeline::{
-        begin_render_pass, configure_surface, create_instance, create_render_pipeline,
-        create_star_buffer, create_surface, request_adapter, request_device_and_queue,
-    }, star::Star, utils::{hex_to_wgpu_color, setup_logger}
+        begin_render_pass, configure_surface, create_instance, create_multisampled_frame,
+        create_render_pipeline, create_star_buffer, create_surface, request_adapter,
+        request_device_and_queue,
+    },
+    star::Star,
+    utils::{hex_to_wgpu_color, setup_logger},
 };
 
 #[wasm_bindgen]
@@ -20,6 +23,7 @@ pub struct NightSky {
     star_buffer: wgpu::Buffer,
     star_count: u32,
     render_pipeline: wgpu::RenderPipeline,
+    multisampled_frame: wgpu::Texture,
 }
 
 #[wasm_bindgen]
@@ -39,10 +43,8 @@ impl NightSky {
         let clear_color = hex_to_wgpu_color(&clear_color).unwrap();
         log::info!("Created surface configuration and color: {:?}", clear_color);
         let stars = Star::generate(star_count as usize);
-        for star in &stars {
-            log::info!("{:?}", star);
-        }
         let star_buffer = create_star_buffer(&device, &stars);
+        let multisampled_frame = create_multisampled_frame(&device, &surface_config);
 
         let render_pipeline = create_render_pipeline(&device, &surface_config);
 
@@ -57,6 +59,7 @@ impl NightSky {
             star_count,
             star_buffer,
             render_pipeline,
+            multisampled_frame,
         }
     }
 
@@ -78,8 +81,14 @@ impl NightSky {
         let view = frame
             .texture
             .create_view(&wgpu::TextureViewDescriptor::default());
+
+        // Create the multisampled texture view
+        let multisampled_view = self
+            .multisampled_frame
+            .create_view(&wgpu::TextureViewDescriptor::default());
+        // Create the render pass
         {
-            let mut render_pass = begin_render_pass(&mut encoder, &view, self.clear_color);
+            let mut render_pass = begin_render_pass(&mut encoder, &view, &multisampled_view, self.clear_color);
             render_pass.set_pipeline(&self.render_pipeline);
             render_pass.set_vertex_buffer(0, self.star_buffer.slice(..)); // Buffer for star instances
             render_pass.draw(0..4, 0..self.star_count as u32); // Draw 4 vertices per instance

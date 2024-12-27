@@ -26,9 +26,9 @@ impl Star {
         (0..count)
             .map(|_| {
                 Star::new(
-                    js_sys::Math::random() as f32,
-                    js_sys::Math::random() as f32,
-                    js_sys::Math::random() as f32,
+                    js_sys::Math::random() as f32 * 2.0 - 1.0,
+                    js_sys::Math::random() as f32 * 2.0 - 1.0,
+                    js_sys::Math::random() as f32 * 0.005,
                     js_sys::Math::random() as f32,
                 )
             })

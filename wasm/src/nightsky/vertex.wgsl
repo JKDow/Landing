@@ -23,13 +23,9 @@ fn main(
     var out: VertexOutput;
     let offset = offsets[vertex_index % 4u];
 
-    let ndc_position = position * 2.0 - vec2<f32>(1.0, 1.0);
-
-    let scaled_size = size * 0.01;
-
     // Scale the offset by size and map the star's position to clip space
     //out.position = vec4<f32>((position * 2.0 - 1.0) + offset * size, 0.0, 1.0);
-    out.position = vec4<f32>(ndc_position + offset * scaled_size, 0.0, 1.0);
+    out.position = vec4<f32>(position + offset * size, 0.0, 1.0);
 
     // Pass the relative position within the quad to the fragment shader
     out.quad_position = offset;

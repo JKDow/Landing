@@ -7,6 +7,8 @@ use wgpu::{util::DeviceExt, SurfaceTargetUnsafe};
 
 use super::star::Star;
 
+const SAMPLE_COUNT: u32 = 8;
+
 /// Create a new wgpu Instance
 /// # Info
 /// The instance is the entry point to the wgpu API.
@@ -73,6 +75,26 @@ pub async fn request_device_and_queue(adapter: &wgpu::Adapter) -> (wgpu::Device,
         .unwrap()
 }
 
+pub fn create_multisampled_frame(
+    device: &wgpu::Device,
+    config: &wgpu::SurfaceConfiguration,
+) -> wgpu::Texture {
+    device.create_texture(&wgpu::TextureDescriptor {
+        label: Some("Multisampled Framebuffer"),
+        size: wgpu::Extent3d {
+            width: config.width,
+            height: config.height,
+            depth_or_array_layers: 1, // 2D texture, no array layers
+        },
+        mip_level_count: 1,          // No mipmaps needed
+        sample_count: SAMPLE_COUNT,                // Use the desired sample count (e.g., 4 for 4x MSAA)
+        dimension: wgpu::TextureDimension::D2,
+        format: config.format,       // Match the surface format
+        usage: wgpu::TextureUsages::RENDER_ATTACHMENT, // Must be used as a render attachment
+        view_formats: &[],           // No additional view formats
+    })
+}
+
 pub fn configure_surface(
     adapter: &wgpu::Adapter,
     surface: &wgpu::Surface,
@@ -104,13 +126,14 @@ pub fn configure_surface(
 pub fn begin_render_pass<'a>(
     encoder: &'a mut wgpu::CommandEncoder,
     view: &'a wgpu::TextureView,
+    multisampled_view: &'a wgpu::TextureView,
     clear_color: wgpu::Color,
 ) -> wgpu::RenderPass<'a> {
     encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
         label: Some("Render Pass"),
         color_attachments: &[Some(wgpu::RenderPassColorAttachment {
-            view,
-            resolve_target: None,
+            view: multisampled_view,
+            resolve_target: Some(view),
             ops: wgpu::Operations {
                 load: wgpu::LoadOp::Clear(clear_color),
                 store: wgpu::StoreOp::Store,
@@ -191,7 +214,7 @@ pub fn create_render_pipeline(
         },
         depth_stencil: None,
         multisample: wgpu::MultisampleState {
-            count: 1,
+            count: SAMPLE_COUNT,
             mask: !0,
             alpha_to_coverage_enabled: false,
         },
