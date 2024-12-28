@@ -1,3 +1,8 @@
+use super::utils::random_range;
+
+const VEL_MOD: f32 = 0.005;
+
+
 /// Star struct
 /// Position: X and Y coordinates
 /// Size: Radius of the star
@@ -30,13 +35,13 @@ impl Star {
         (0..count)
             .map(|_| {
                 Star::new(
-                    js_sys::Math::random() as f32 * 2.0 - 1.0,
-                    js_sys::Math::random() as f32 * 2.0 - 1.0,
-                    js_sys::Math::random() as f32 * 0.005,
-                    js_sys::Math::random() as f32,
-                    js_sys::Math::random() as f32,
-                    js_sys::Math::random() as f32 * 2.0 - 1.0,
-                    js_sys::Math::random() as f32 * 2.0 - 1.0,
+                    random_range(-1.0, 1.0),
+                    random_range(-1.0, 1.0),
+                    random_range(0.002, 0.005),
+                    random_range(0.2, 1.0),
+                    random_range(0.05, 0.3),
+                    random_range(-1.0, 1.0) * VEL_MOD,
+                    random_range(-1.0, 1.0) * VEL_MOD,
                 )
             })
             .collect()
@@ -50,7 +55,15 @@ impl Star {
         } else if self.brightness <= 0.0 {
             self.brightness = 0.0;
             self.fade_speed = -self.fade_speed;
+            self.refresh_position();
         }
+        self.position[0] += self.velocity[0] * delta_time;
+        self.position[1] += self.velocity[1] * delta_time;
+    }
+
+    fn refresh_position(&mut self) {
+        self.position[0] = js_sys::Math::random() as f32 * 2.0 - 1.0;
+        self.position[1] = js_sys::Math::random() as f32 * 2.0 - 1.0;
     }
 
     const ATTR: [wgpu::VertexAttribute; 3] = wgpu::vertex_attr_array![

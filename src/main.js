@@ -18,7 +18,7 @@ async function run() {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
 
-    const nightSky = await new NightSky(canvas, "#0A0A0A", 700);
+    const nightSky = await new NightSky(canvas, "#0A0A0A", 750);
 
     const resizeCanvas = () => {
         canvas.width = window.innerWidth;
@@ -28,8 +28,13 @@ async function run() {
 
     window.addEventListener('resize', resizeCanvas);
 
+    let lastTime = performance.now();
+
     function render() {
-        nightSky.update_and_render();
+        const currentTime = performance.now();
+        const deltaTime = (currentTime - lastTime) / 1000; // Convert to seconds
+        lastTime = currentTime;
+        nightSky.update_and_render(deltaTime);
         requestAnimationFrame(render);
     }
     render();

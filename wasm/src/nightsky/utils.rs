@@ -32,3 +32,7 @@ pub fn hex_to_wgpu_color(hex: &str) -> Result<wgpu::Color, String> {
         _ => Err("Hex string must be 6 (RGB) or 8 (RGBA) characters long".into()),
     }
 }
+
+pub fn random_range(min: f32, max: f32) -> f32 {
+    js_sys::Math::random() as f32 * (max - min) + min
+}

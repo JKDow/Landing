@@ -77,7 +77,11 @@ impl NightSky {
     }
 
     fn update(&mut self, delta_time: f32) {
-        self.stars.iter_mut().for_each(|star| star.update(delta_time));
+        self.stars
+            .iter_mut()
+            .for_each(|star| star.update(delta_time));
+        self.queue
+            .write_buffer(&self.star_buffer, 0, bytemuck::cast_slice(&self.stars));
     }
 
     fn render(&self) {
