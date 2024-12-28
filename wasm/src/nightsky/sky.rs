@@ -3,9 +3,9 @@ use web_sys::HtmlCanvasElement;
 
 use crate::nightsky::{
     pipeline::{
-        begin_render_pass, configure_surface, create_bind_group, create_compute_pipeline,
-        create_instance, create_multisampled_frame, create_render_pipeline, create_star_buffer,
-        create_surface, request_adapter, request_device_and_queue,
+        begin_render_pass, configure_surface, create_instance, create_multisampled_frame,
+        create_render_pipeline, create_star_buffer, create_surface, request_adapter,
+        request_device_and_queue,
     },
     star::Star,
     utils::{hex_to_wgpu_color, setup_logger},
@@ -20,12 +20,10 @@ pub struct NightSky {
     queue: wgpu::Queue,
     surface_config: wgpu::SurfaceConfiguration,
     clear_color: wgpu::Color,
+    stars: Vec<Star>,
     star_buffer: wgpu::Buffer,
-    star_count: u32,
     render_pipeline: wgpu::RenderPipeline,
     multisampled_frame: wgpu::Texture,
-    compute_pipeline: wgpu::ComputePipeline,
-    bind_group: wgpu::BindGroup,
 }
 
 #[wasm_bindgen]
@@ -49,8 +47,6 @@ impl NightSky {
         let multisampled_frame = create_multisampled_frame(&device, &surface_config);
 
         let render_pipeline = create_render_pipeline(&device, &surface_config);
-        let compute_pipeline = create_compute_pipeline(&device);
-        let bind_group = create_bind_group(&device, &compute_pipeline, &star_buffer);
 
         NightSky {
             _canvas: canvas,
@@ -60,18 +56,16 @@ impl NightSky {
             queue,
             surface_config,
             clear_color,
-            star_count,
+            stars,
             star_buffer,
             render_pipeline,
             multisampled_frame,
-            compute_pipeline,
-            bind_group,
         }
     }
 
     #[wasm_bindgen]
-    pub fn update_and_render(&self) {
-        self.update();
+    pub fn update_and_render(&mut self, delta_time: f32) {
+        self.update(delta_time);
         self.render();
     }
 
@@ -82,26 +76,8 @@ impl NightSky {
         //log::info!("Resized surface to {}x{}", width, height);
     }
 
-    fn update(&self) {
-        let mut encoder = self
-            .device
-            .create_command_encoder(&wgpu::CommandEncoderDescriptor {
-                label: Some("Compute Encoder"),
-            });
-
-        // Dispatch compute shader
-        {
-            let mut compute_pass = encoder.begin_compute_pass(&wgpu::ComputePassDescriptor {
-                label: Some("Compute Pass"),
-                timestamp_writes: None,
-            });
-            compute_pass.set_pipeline(&self.compute_pipeline);
-            compute_pass.set_bind_group(0, &self.bind_group, &[]);
-            compute_pass.dispatch_workgroups((self.star_count + 63) / 64, 1, 1);
-        }
-
-        // Submit the compute commands
-        self.queue.submit(std::iter::once(encoder.finish()));
+    fn update(&mut self, delta_time: f32) {
+        self.stars.iter_mut().for_each(|star| star.update(delta_time));
     }
 
     fn render(&self) {
@@ -121,7 +97,7 @@ impl NightSky {
                 begin_render_pass(&mut encoder, &view, &multisampled_view, self.clear_color);
             render_pass.set_pipeline(&self.render_pipeline);
             render_pass.set_vertex_buffer(0, self.star_buffer.slice(..)); // Buffer for star instances
-            render_pass.draw(0..4, 0..self.star_count as u32); // Draw 4 vertices per instance
+            render_pass.draw(0..4, 0..self.stars.len() as u32); // Draw 4 vertices per instance
         }
         self.submit(encoder);
         frame.present();

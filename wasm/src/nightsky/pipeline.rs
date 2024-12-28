@@ -153,13 +153,6 @@ pub fn create_star_buffer(device: &wgpu::Device, stars: &[Star]) -> wgpu::Buffer
     })
 }
 
-pub fn compute_shader(device: &wgpu::Device) -> wgpu::ShaderModule {
-    device.create_shader_module(wgpu::ShaderModuleDescriptor {
-        label: Some("Compute.wgsl"),
-        source: wgpu::ShaderSource::Wgsl(include_str!("compute.wgsl").into()),
-    })
-}
-
 pub fn vertex_shader(device: &wgpu::Device) -> wgpu::ShaderModule {
     device.create_shader_module(wgpu::ShaderModuleDescriptor {
         label: Some("Vertex Shader"),
@@ -171,36 +164,6 @@ pub fn fragment_shader(device: &wgpu::Device) -> wgpu::ShaderModule {
     device.create_shader_module(wgpu::ShaderModuleDescriptor {
         label: Some("Fragment Shader"),
         source: wgpu::ShaderSource::Wgsl(include_str!("fragment.wgsl").into()),
-    })
-}
-
-pub fn create_compute_pipeline(device: &wgpu::Device) -> wgpu::ComputePipeline {
-    let compute_shader = compute_shader(device);
-    device.create_compute_pipeline(&wgpu::ComputePipelineDescriptor {
-        label: Some("Compute Pipeline"),
-        layout: None,
-        module: &compute_shader,
-        entry_point: Some("main"),
-        cache: None,
-        compilation_options: wgpu::PipelineCompilationOptions {
-            ..Default::default()
-        },
-    })
-}
-
-pub fn create_bind_group(
-    device: &wgpu::Device,
-    pipeline: &wgpu::ComputePipeline,
-    star_buffer: &wgpu::Buffer,
-) -> wgpu::BindGroup {
-    let bind_group_layout = pipeline.get_bind_group_layout(0);
-    device.create_bind_group(&wgpu::BindGroupDescriptor {
-        layout: &bind_group_layout,
-        entries: &[wgpu::BindGroupEntry {
-            binding: 0,
-            resource: star_buffer.as_entire_binding(),
-        }],
-        label: Some("Compute Bind Group"),
     })
 }
 
