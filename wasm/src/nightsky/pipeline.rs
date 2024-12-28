@@ -86,12 +86,12 @@ pub fn create_multisampled_frame(
             height: config.height,
             depth_or_array_layers: 1, // 2D texture, no array layers
         },
-        mip_level_count: 1,          // No mipmaps needed
-        sample_count: SAMPLE_COUNT,                // Use the desired sample count (e.g., 4 for 4x MSAA)
+        mip_level_count: 1,         // No mipmaps needed
+        sample_count: SAMPLE_COUNT, // Use the desired sample count (e.g., 4 for 4x MSAA)
         dimension: wgpu::TextureDimension::D2,
-        format: config.format,       // Match the surface format
+        format: config.format, // Match the surface format
         usage: wgpu::TextureUsages::RENDER_ATTACHMENT, // Must be used as a render attachment
-        view_formats: &[],           // No additional view formats
+        view_formats: &[],     // No additional view formats
     })
 }
 
@@ -149,7 +149,14 @@ pub fn create_star_buffer(device: &wgpu::Device, stars: &[Star]) -> wgpu::Buffer
     device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
         label: Some("Star Buffer"),
         contents: bytemuck::cast_slice(stars),
-        usage: wgpu::BufferUsages::VERTEX | wgpu::BufferUsages::COPY_DST,
+        usage: wgpu::BufferUsages::VERTEX | wgpu::BufferUsages::STORAGE | wgpu::BufferUsages::COPY_DST,
+    })
+}
+
+pub fn compute_shader(device: &wgpu::Device) -> wgpu::ShaderModule {
+    device.create_shader_module(wgpu::ShaderModuleDescriptor {
+        label: Some("Compute.wgsl"),
+        source: wgpu::ShaderSource::Wgsl(include_str!("compute.wgsl").into()),
     })
 }
 
@@ -164,6 +171,36 @@ pub fn fragment_shader(device: &wgpu::Device) -> wgpu::ShaderModule {
     device.create_shader_module(wgpu::ShaderModuleDescriptor {
         label: Some("Fragment Shader"),
         source: wgpu::ShaderSource::Wgsl(include_str!("fragment.wgsl").into()),
+    })
+}
+
+pub fn create_compute_pipeline(device: &wgpu::Device) -> wgpu::ComputePipeline {
+    let compute_shader = compute_shader(device);
+    device.create_compute_pipeline(&wgpu::ComputePipelineDescriptor {
+        label: Some("Compute Pipeline"),
+        layout: None,
+        module: &compute_shader,
+        entry_point: Some("main"),
+        cache: None,
+        compilation_options: wgpu::PipelineCompilationOptions {
+            ..Default::default()
+        },
+    })
+}
+
+pub fn create_bind_group(
+    device: &wgpu::Device,
+    pipeline: &wgpu::ComputePipeline,
+    star_buffer: &wgpu::Buffer,
+) -> wgpu::BindGroup {
+    let bind_group_layout = pipeline.get_bind_group_layout(0);
+    device.create_bind_group(&wgpu::BindGroupDescriptor {
+        layout: &bind_group_layout,
+        entries: &[wgpu::BindGroupEntry {
+            binding: 0,
+            resource: star_buffer.as_entire_binding(),
+        }],
+        label: Some("Compute Bind Group"),
     })
 }
 

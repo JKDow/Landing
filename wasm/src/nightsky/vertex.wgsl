@@ -1,7 +1,8 @@
 struct VertexOutput {
     @builtin(position) position: vec4<f32>,  // Position in clip space
     @location(0) quad_position: vec2<f32>,  // Position within the star's quad
-    @location(1) brightness: f32           // Star brightness
+    @location(1) brightness: f32,           // Star brightness
+    @location(2) size: f32                  // Star size
 };
 
 @vertex
@@ -23,16 +24,12 @@ fn main(
     var out: VertexOutput;
     let offset = offsets[vertex_index % 4u];
 
-    // Scale the offset by size and map the star's position to clip space
-    //out.position = vec4<f32>((position * 2.0 - 1.0) + offset * size, 0.0, 1.0);
+    // Map the quad's position and scale it by size
     out.position = vec4<f32>(position + offset * size, 0.0, 1.0);
 
-    // Pass the relative position within the quad to the fragment shader
+    // Pass attributes to the fragment shader
     out.quad_position = offset;
-    //out.quad_position = offset * 0.5 + vec2<f32>(0.5, 0.5);
-
-    // Pass brightness through
     out.brightness = brightness;
+    out.size = size; // Pass the size to the fragment shader
     return out;
 }
-
