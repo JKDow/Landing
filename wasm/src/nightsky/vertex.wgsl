@@ -1,35 +1,37 @@
-struct VertexOutput {
-    @builtin(position) position: vec4<f32>,  // Position in clip space
-    @location(0) quad_position: vec2<f32>,  // Position within the star's quad
-    @location(1) brightness: f32,           // Star brightness
-    @location(2) size: f32                  // Star size
+struct VertexInput {
+    @location(0) position: vec2<f32>,         // Circle vertex position
+    @location(1) instance_position: vec2<f32>, // Star instance position
+    @location(2) size: f32,                  // Star instance size
+    @location(3) brightness: f32,           // Star brightness
 };
 
+struct VertexOutput {
+    @builtin(position) clip_position: vec4<f32>, // Position in clip space
+    @location(0) brightness: f32,               // Brightness passed to fragment shader
+    @location(1) unit_circle_position: vec2<f32>, // Position in the unit circle
+};
+
+@group(0) @binding(0)
+var<uniform> screen_size: vec4<f32>;
+
 @vertex
-fn main(
-    @builtin(vertex_index) vertex_index: u32,
-    @builtin(instance_index) instance_index: u32, // Index of the current instance
-    @location(0) position: vec2<f32>,            // Star position (per instance)
-    @location(1) size: f32,                      // Star size (per instance)
-    @location(2) brightness: f32
-) -> VertexOutput {
-    // Define the four corners of the quad
-    let offsets = array<vec2<f32>, 4>(
-        vec2<f32>(-1.0, -1.0), // Bottom-left
-        vec2<f32>( 1.0, -1.0), // Bottom-right
-        vec2<f32>(-1.0,  1.0), // Top-left
-        vec2<f32>( 1.0,  1.0)  // Top-right
+fn main(input: VertexInput) -> VertexOutput {
+    var output: VertexOutput;
+
+    // Calculate clip-space position
+    output.clip_position = vec4<f32>(
+        input.position * input.size + input.instance_position,
+        0.0,
+        1.0,
     );
 
-    var out: VertexOutput;
-    let offset = offsets[vertex_index % 4u];
+    // Convert position to screen space and normalize
+    let screen_dimensions = screen_size.xy;
+    let screen_position = input.position * input.size;
+    output.unit_circle_position = screen_position / screen_dimensions;
 
-    // Map the quad's position and scale it by size
-    out.position = vec4<f32>(position + offset * size, 0.0, 1.0);
+    // Pass brightness
+    output.brightness = input.brightness;
 
-    // Pass attributes to the fragment shader
-    out.quad_position = offset;
-    out.brightness = brightness;
-    out.size = size; // Pass the size to the fragment shader
-    return out;
+    return output;
 }

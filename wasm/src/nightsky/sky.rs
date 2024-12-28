@@ -3,12 +3,8 @@ use web_sys::HtmlCanvasElement;
 
 use crate::nightsky::{
     pipeline::{
-        begin_render_pass, configure_surface, create_instance, create_multisampled_frame,
-        create_render_pipeline, create_star_buffer, create_surface, request_adapter,
-        request_device_and_queue,
-    },
-    star::Star,
-    utils::{hex_to_wgpu_color, setup_logger},
+        begin_render_pass, configure_surface, create_bind_group, create_circle_buffer, create_instance, create_multisampled_frame, create_render_pipeline, create_star_buffer, create_surface, request_adapter, request_device_and_queue
+    }, screen::create_screen_size_buffer, star::Star, utils::{hex_to_wgpu_color, setup_logger}
 };
 
 #[wasm_bindgen]
@@ -22,8 +18,14 @@ pub struct NightSky {
     clear_color: wgpu::Color,
     stars: Vec<Star>,
     star_buffer: wgpu::Buffer,
+    circle_vertex_buffer: wgpu::Buffer,
+    circle_index_buffer: wgpu::Buffer,
+    index_count: u32,
     render_pipeline: wgpu::RenderPipeline,
     multisampled_frame: wgpu::Texture,
+    screen_buffer: wgpu::Buffer,
+    bind_group_layout: wgpu::BindGroupLayout,
+    bind_group: wgpu::BindGroup,
 }
 
 #[wasm_bindgen]
@@ -43,10 +45,16 @@ impl NightSky {
         let clear_color = hex_to_wgpu_color(&clear_color).unwrap();
         log::info!("Created surface configuration and color: {:?}", clear_color);
         let stars = Star::generate(star_count as usize);
+        let (circle_vertex_buffer, circle_index_buffer, index_count) =
+            create_circle_buffer(&device);
         let star_buffer = create_star_buffer(&device, &stars);
         let multisampled_frame = create_multisampled_frame(&device, &surface_config);
 
-        let render_pipeline = create_render_pipeline(&device, &surface_config);
+        let screen_buffer = create_screen_size_buffer(&device, canvas.width() as f32, canvas.height() as f32);
+        let (bind_group_layout, bind_group) = create_bind_group(&device, &screen_buffer);
+
+        let render_pipeline = create_render_pipeline(&device, &surface_config, &bind_group_layout);
+
 
         NightSky {
             _canvas: canvas,
@@ -58,8 +66,14 @@ impl NightSky {
             clear_color,
             stars,
             star_buffer,
+            circle_vertex_buffer,
+            circle_index_buffer,
+            index_count,
             render_pipeline,
             multisampled_frame,
+            screen_buffer,
+            bind_group,
+            bind_group_layout,
         }
     }
 
@@ -100,8 +114,11 @@ impl NightSky {
             let mut render_pass =
                 begin_render_pass(&mut encoder, &view, &multisampled_view, self.clear_color);
             render_pass.set_pipeline(&self.render_pipeline);
-            render_pass.set_vertex_buffer(0, self.star_buffer.slice(..)); // Buffer for star instances
-            render_pass.draw(0..4, 0..self.stars.len() as u32); // Draw 4 vertices per instance
+            render_pass.set_vertex_buffer(0, self.circle_vertex_buffer.slice(..));
+            render_pass.set_vertex_buffer(1, self.star_buffer.slice(..)); // Instance buffer
+            render_pass.set_index_buffer(self.circle_index_buffer.slice(..), wgpu::IndexFormat::Uint16);
+            render_pass.set_bind_group(0, &self.bind_group, &[]);
+            render_pass.draw_indexed(0..self.index_count, 0, 0..self.stars.len() as u32);
         }
         self.submit(encoder);
         frame.present();

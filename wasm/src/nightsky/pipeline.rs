@@ -5,7 +5,7 @@ use wasm_bindgen::JsValue;
 use web_sys::HtmlCanvasElement;
 use wgpu::{util::DeviceExt, SurfaceTargetUnsafe};
 
-use super::star::Star;
+use super::{circle::Circle, star::Star};
 
 const SAMPLE_COUNT: u32 = 8;
 
@@ -145,12 +145,66 @@ pub fn begin_render_pass<'a>(
     })
 }
 
+pub fn create_circle_buffer(device: &wgpu::Device) -> (wgpu::Buffer, wgpu::Buffer, u32) {
+    let circle_mesh = Circle::new();
+
+    // Create vertex buffer
+    let vertex_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
+        label: Some("Circle Vertex Buffer"),
+        contents: bytemuck::cast_slice(&circle_mesh.vertices),
+        usage: wgpu::BufferUsages::VERTEX,
+    });
+
+    // Create index buffer
+    let index_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
+        label: Some("Circle Index Buffer"),
+        contents: bytemuck::cast_slice(&circle_mesh.indices),
+        usage: wgpu::BufferUsages::INDEX,
+    });
+
+    let index_count = circle_mesh.indices.len() as u32;
+
+    (vertex_buffer, index_buffer, index_count)
+}
+
 pub fn create_star_buffer(device: &wgpu::Device, stars: &[Star]) -> wgpu::Buffer {
     device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
         label: Some("Star Buffer"),
         contents: bytemuck::cast_slice(stars),
-        usage: wgpu::BufferUsages::VERTEX | wgpu::BufferUsages::STORAGE | wgpu::BufferUsages::COPY_DST,
+        usage: wgpu::BufferUsages::VERTEX
+            | wgpu::BufferUsages::STORAGE
+            | wgpu::BufferUsages::COPY_DST,
     })
+}
+
+pub fn create_bind_group(
+    device: &wgpu::Device,
+    screen_buffer: &wgpu::Buffer,
+) -> (wgpu::BindGroupLayout, wgpu::BindGroup) {
+    let screen_size_bind_group_layout =
+        device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
+            label: Some("Screen Size Bind Group Layout"),
+            entries: &[wgpu::BindGroupLayoutEntry {
+                binding: 0,
+                visibility: wgpu::ShaderStages::VERTEX,
+                ty: wgpu::BindingType::Buffer {
+                    ty: wgpu::BufferBindingType::Uniform,
+                    has_dynamic_offset: false,
+                    min_binding_size: None,
+                },
+                count: None,
+            }],
+        });
+
+    let bind_group = device.create_bind_group(&wgpu::BindGroupDescriptor {
+        label: Some("Screen Size Bind Group"),
+        layout: &screen_size_bind_group_layout,
+        entries: &[wgpu::BindGroupEntry {
+            binding: 0,
+            resource: screen_buffer.as_entire_binding(),
+        }],
+    });
+    (screen_size_bind_group_layout, bind_group)
 }
 
 pub fn vertex_shader(device: &wgpu::Device) -> wgpu::ShaderModule {
@@ -170,10 +224,11 @@ pub fn fragment_shader(device: &wgpu::Device) -> wgpu::ShaderModule {
 pub fn create_render_pipeline(
     device: &wgpu::Device,
     config: &wgpu::SurfaceConfiguration,
+    bind_group_layout: &wgpu::BindGroupLayout,
 ) -> wgpu::RenderPipeline {
     let render_pipeline_layout = device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
         label: Some("Render Pipeline Layout"),
-        bind_group_layouts: &[],
+        bind_group_layouts: &[bind_group_layout],
         push_constant_ranges: &[],
     });
 
@@ -186,7 +241,7 @@ pub fn create_render_pipeline(
         vertex: wgpu::VertexState {
             module: &vertex_shader,
             entry_point: Some("main"),
-            buffers: &[Star::desc()],
+            buffers: &[Circle::desc(), Star::desc()],
             compilation_options: wgpu::PipelineCompilationOptions::default(),
         },
         fragment: Some(wgpu::FragmentState {
@@ -201,7 +256,7 @@ pub fn create_render_pipeline(
             compilation_options: wgpu::PipelineCompilationOptions::default(),
         }),
         primitive: wgpu::PrimitiveState {
-            topology: wgpu::PrimitiveTopology::TriangleStrip,
+            topology: wgpu::PrimitiveTopology::TriangleList,
             strip_index_format: None,
             front_face: wgpu::FrontFace::Ccw,
             cull_mode: None,

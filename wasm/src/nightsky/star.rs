@@ -37,9 +37,9 @@ impl Star {
                 Star::new(
                     random_range(-1.0, 1.0),
                     random_range(-1.0, 1.0),
-                    random_range(0.002, 0.005),
+                    random_range(0.001, 0.003),
                     random_range(0.2, 1.0),
-                    random_range(0.05, 0.3),
+                    random_range(0.08, 0.3),
                     random_range(-1.0, 1.0) * VEL_MOD,
                     random_range(-1.0, 1.0) * VEL_MOD,
                 )
@@ -68,11 +68,11 @@ impl Star {
 
     const ATTR: [wgpu::VertexAttribute; 3] = wgpu::vertex_attr_array![
         // Position
-        0 => Float32x2,
+        1 => Float32x2,
         // Size
-        1 => Float32,
-        // Brightness
         2 => Float32,
+        // Brightness
+        3 => Float32,
     ];
 
     pub fn desc() -> wgpu::VertexBufferLayout<'static> {
