@@ -1,9 +1,9 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, defineProps } from 'vue'
 </script>
 
 <template>
-    <div class="bg-gray-800 w-full h-full px-2 py-1 rounded-lg">
-        <slot name="content"></slot>
+    <div v-bind="$attrs" class="w-full h-full">
+        <slot></slot>
     </div>
 </template>

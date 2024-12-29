@@ -7,30 +7,38 @@ pub fn setup_logger() {
 pub fn hex_to_wgpu_color(hex: &str) -> Result<wgpu::Color, String> {
     // Remove the '#' prefix if present
     let hex = hex.strip_prefix('#').unwrap_or(hex);
-    let parse_rgb = |hex: &str| -> Result<[u8; 3], String> {
-        let mut vals: [u8; 3] = [0, 0, 0];
-        vals[0] = u8::from_str_radix(&hex[0..2], 16).map_err(|_| "Invalid red component")?;
-        vals[1] = u8::from_str_radix(&hex[2..4], 16).map_err(|_| "Invalid green component")?;
-        vals[2] = u8::from_str_radix(&hex[4..6], 16).map_err(|_| "Invalid blue component")?;
-        Ok(vals)
-    };
-    let make_color = |rgb: [u8; 3], a: u8| wgpu::Color {
-        r: rgb[0] as f64 / 255.0,
-        g: rgb[1] as f64 / 255.0,
-        b: rgb[2] as f64 / 255.0,
-        a: a as f64 / 255.0,
+
+    // Validate length
+    if hex.len() != 6 && hex.len() != 8 {
+        return Err("Hex string must be 6 (RGB) or 8 (RGBA) characters long".into());
+    }
+
+    // Parse the color components
+    let r = u8::from_str_radix(&hex[0..2], 16).map_err(|_| "Invalid red component")?;
+    let g = u8::from_str_radix(&hex[2..4], 16).map_err(|_| "Invalid green component")?;
+    let b = u8::from_str_radix(&hex[4..6], 16).map_err(|_| "Invalid blue component")?;
+    let a = if hex.len() == 8 {
+        u8::from_str_radix(&hex[6..8], 16).map_err(|_| "Invalid alpha component")?
+    } else {
+        255
     };
 
-    // Parse the string based on its length
-    let rgb = parse_rgb(hex)?;
-    match hex.len() {
-        6 => Ok(make_color(rgb, 255)),
-        8 => {
-            let a = u8::from_str_radix(&hex[6..8], 16).map_err(|_| "Invalid alpha component")?;
-            Ok(make_color(rgb, a))
+    // Convert sRGB to linear space
+    let srgb_to_linear = |c: u8| {
+        let c = c as f64 / 255.0;
+        if c <= 0.04045 {
+            c / 12.92
+        } else {
+            ((c + 0.055) / 1.055).powf(2.4)
         }
-        _ => Err("Hex string must be 6 (RGB) or 8 (RGBA) characters long".into()),
-    }
+    };
+
+    Ok(wgpu::Color {
+        r: srgb_to_linear(r),
+        g: srgb_to_linear(g),
+        b: srgb_to_linear(b),
+        a: a as f64 / 255.0, // Alpha remains in the [0, 1] range
+    })
 }
 
 pub fn random_range(min: f32, max: f32) -> f32 {

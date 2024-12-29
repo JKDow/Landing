@@ -23,8 +23,6 @@ pub struct NightSky {
     index_count: u32,
     render_pipeline: wgpu::RenderPipeline,
     multisampled_frame: wgpu::Texture,
-    screen_buffer: wgpu::Buffer,
-    bind_group_layout: wgpu::BindGroupLayout,
     bind_group: wgpu::BindGroup,
 }
 
@@ -71,9 +69,7 @@ impl NightSky {
             index_count,
             render_pipeline,
             multisampled_frame,
-            screen_buffer,
             bind_group,
-            bind_group_layout,
         }
     }
 

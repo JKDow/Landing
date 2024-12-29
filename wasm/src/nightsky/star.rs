@@ -1,7 +1,13 @@
 use super::utils::random_range;
 
 const VEL_MOD: f32 = 0.005;
-
+const STAR_COLORS: [[f32; 3]; 5] = [
+    [0.8, 0.9, 1.0], // Blue-white
+    [1.0, 1.0, 1.0], // White
+    [1.0, 0.9, 0.8], // Yellow-white
+    [1.0, 0.8, 0.6], // Light orange
+    [1.0, 0.6, 0.4], // Reddish-orange
+];
 
 /// Star struct
 /// Position: X and Y coordinates
@@ -16,16 +22,27 @@ pub struct Star {
     pub size: f32,
     /// Brightness of the star (0.0 to 1.0)
     pub brightness: f32,
+    pub color: [f32; 3], // RGB color of the star
     pub fade_speed: f32, // (0.0 to 1.0)
     pub velocity: [f32; 2],
 }
 
 impl Star {
-    pub fn new(x: f32, y: f32, size: f32, brightness: f32, fade_speed: f32, x_vel: f32, y_vel: f32) -> Self {
+    pub fn new(
+        x: f32,
+        y: f32,
+        size: f32,
+        brightness: f32,
+        fade_speed: f32,
+        x_vel: f32,
+        y_vel: f32,
+        color: [f32; 3],
+    ) -> Self {
         Self {
             position: [x, y],
             size,
             brightness,
+            color,
             fade_speed,
             velocity: [x_vel, y_vel],
         }
@@ -34,6 +51,13 @@ impl Star {
     pub fn generate(count: usize) -> Vec<Star> {
         (0..count)
             .map(|_| {
+                let base_color = STAR_COLORS[random_range(0.0, STAR_COLORS.len() as f32) as usize];
+                let color_variation = |c: f32| (c + random_range(-0.1, 0.1)).clamp(0.0, 1.0);
+                let color = [
+                    color_variation(base_color[0]), // Red
+                    color_variation(base_color[1]), // Green
+                    color_variation(base_color[2]), // Blue
+                ];
                 Star::new(
                     random_range(-1.0, 1.0),
                     random_range(-1.0, 1.0),
@@ -42,6 +66,7 @@ impl Star {
                     random_range(0.08, 0.3),
                     random_range(-1.0, 1.0) * VEL_MOD,
                     random_range(-1.0, 1.0) * VEL_MOD,
+                    color,
                 )
             })
             .collect()
@@ -66,13 +91,15 @@ impl Star {
         self.position[1] = js_sys::Math::random() as f32 * 2.0 - 1.0;
     }
 
-    const ATTR: [wgpu::VertexAttribute; 3] = wgpu::vertex_attr_array![
+    const ATTR: [wgpu::VertexAttribute; 4] = wgpu::vertex_attr_array![
         // Position
         1 => Float32x2,
         // Size
         2 => Float32,
         // Brightness
         3 => Float32,
+        // Color
+        4 => Float32x3,
     ];
 
     pub fn desc() -> wgpu::VertexBufferLayout<'static> {

@@ -1,10 +1,10 @@
 <script setup>
 import Counter from '../components/Counter.vue'
 import GoogleSearch from '../components/GoogleSearch.vue'
-import GridCard from '../components/GridCard.vue'
 import QuickAccess from '../components/QuickAccess.vue'
 import ContentCard from '../components/ContentCard.vue'
 import ScrollSelector from '../components/ScrollSelector.vue'
+import Card from '../components/Card.vue'
 </script>
 
 <template>
@@ -12,34 +12,22 @@ import ScrollSelector from '../components/ScrollSelector.vue'
         <!-- Empty cell -->
         <div class=""></div>
         <!-- Search Bar -->
-        <div class="flex items-center justify-center">
-            <div class="w-[50%] h-[20%]">
-                <GoogleSearch />
-            </div>
-        </div>
+        <Card outer_class="justify-center" height="25%" width="70%">
+            <GoogleSearch />
+        </Card>
         <!-- Scroll -->
-        <div class="flex items-center justify-end">
-            <div class="h-[70%] w-[40%]">
-                <ScrollSelector />
-            </div>
-        </div>
+        <Card outer_class="justify-end" height="70%" width="40%">
+            <ScrollSelector />
+        </Card>
         <!-- Content -->
-        <div class="flex justify-center items-center">
-            <div class="h-[80%] w-[80%]">
-                <ContentCard>
-                    <template #content>
-                        <Counter />
-                        <div class="" id="wasm-window">
-                        </div>
-                    </template>
-                </ContentCard>
-            </div>
-        </div>
+        <Card outer_class="justify-center" height="90%" width="95%">
+            <ContentCard>
+                <Counter />
+            </ContentCard>
+        </Card>
         <!-- Side Access -->
-        <div class="row-span-full col-start-3 flex justify-center items-center">
-            <div class="w-[50%] h-[80%]">
-                <QuickAccess />
-            </div>
-        </div>
+        <Card outer_class="row-span-full col-start-3 justify-center" height="80%" width="50%">
+            <QuickAccess />
+        </Card>
     </div>
 </template>
