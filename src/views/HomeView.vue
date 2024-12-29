@@ -21,9 +21,7 @@ import Card from '../components/Card.vue'
         </Card>
         <!-- Content -->
         <Card outer_class="justify-center" height="90%" width="95%">
-            <ContentCard>
-                <Counter />
-            </ContentCard>
+            <ContentCard />
         </Card>
         <!-- Side Access -->
         <Card outer_class="row-span-full col-start-3 justify-center" height="80%" width="50%">

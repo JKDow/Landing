@@ -18,8 +18,7 @@ async function run() {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
 
-    //const nightSky = await new NightSky(canvas, "#151621", 1500);
-    const nightSky = await new NightSky(canvas, "#252525", 1500);
+    const nightSky = await new NightSky(canvas, "#252525", 2500);
 
     const resizeCanvas = () => {
         canvas.width = window.innerWidth;
