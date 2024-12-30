@@ -83,7 +83,7 @@ impl NightSky {
         self.surface_config.width = width;
         self.surface_config.height = height;
         self.surface.configure(&self.device, &self.surface_config);
-        //log::info!("Resized surface to {}x{}", width, height);
+        self.multisampled_frame = create_multisampled_frame(&self.device, &self.surface_config);
     }
 
     fn update(&mut self, delta_time: f32) {

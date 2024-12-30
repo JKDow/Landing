@@ -1,6 +1,5 @@
 <script setup>
-import ButtonLink from './ButtonLink.vue'
-import { ref, defineProps } from 'vue'
+import ButtonLink from '../ButtonLink.vue'
 </script>
 
 <template>

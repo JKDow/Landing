@@ -2,9 +2,9 @@
 import Counter from '../components/Counter.vue'
 import GoogleSearch from '../components/GoogleSearch.vue'
 import QuickAccess from '../components/QuickAccess.vue'
-import ContentCard from '../components/ContentCard.vue'
-import ScrollSelector from '../components/ScrollSelector.vue'
+import WindowSelector from '../components/WindowSelector.vue'
 import Card from '../components/Card.vue'
+import WindowManager from '@/components/WindowManager.vue'
 </script>
 
 <template>
@@ -16,12 +16,12 @@ import Card from '../components/Card.vue'
             <GoogleSearch />
         </Card>
         <!-- Scroll -->
-        <Card outer_class="justify-end" height="70%" width="40%">
-            <ScrollSelector />
+        <Card outer_class="justify-end" height="70%" width="40%" padding="p-2">
+            <WindowSelector />
         </Card>
         <!-- Content -->
         <Card outer_class="justify-center" height="90%" width="95%">
-            <ContentCard />
+            <WindowManager />
         </Card>
         <!-- Side Access -->
         <Card outer_class="row-span-full col-start-3 justify-center" height="80%" width="50%">
