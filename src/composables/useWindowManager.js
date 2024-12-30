@@ -1,52 +1,51 @@
-import { reactive, markRaw } from "vue";
+import { reactive, markRaw, ref } from 'vue';
 
 const state = reactive({
     windows: [],
     activeWindow: null,
 });
 
-// Import all components from the windows directory
-const modules = import.meta.glob("../components/windows/*.vue");
+const ready = ref(false);
 
-// Helper function to find a component by ID
-function resolveComponentById(id) {
-    const path = `../components/windows/${id}.vue`;
-    if (modules[path]) {
-        // Return a Promise that resolves the component
-        return modules[path]().then((module) => markRaw(module.default));
-    } else {
-        console.error(`Component with id '${id}' not found in /components/windows/`);
-        return Promise.resolve(null); // Return a resolved Promise with null
-    }
-}
+const modules = import.meta.glob('@/components/windows/*.vue');
 
-// Register a window component
-function registerWindow(window) {
-    const { id, title, active } = window;
-    resolveComponentById(id).then((component) => {
-        if (component) {
-            if (!state.windows.some((w) => w.id === id)) {
+// Automatically register all windows
+function initializeWindows() {
+    Promise.all(
+        Object.entries(modules).map(([path, loader]) =>
+            loader().then((module) => {
+                const id = path.match(/\/([^/]+)\.vue$/)[1];
+                const title = module.default?.title || id;
+                const startActive = module.default?.startActive || false;
+
                 state.windows.push({
                     id,
                     title,
-                    component,
+                    component: markRaw(module.default),
                 });
-                if (active) {
-                    state.activeWindow = id; // Set the first registered window as active
+
+                if (startActive) {
+                    state.activeWindow = id;
                 }
-            }
+            })
+        )
+    ).then(() => {
+        if (!state.activeWindow && state.windows.length > 0) {
+            state.activeWindow = state.windows[0].id;
         }
+        ready.value = true;
     });
 }
 
-function setActiveWindow(windowId) {
-    state.activeWindow = windowId;
+function setActiveWindow(id) {
+    state.activeWindow = id;
 }
 
 export function useWindowManager() {
     return {
         state,
-        registerWindow,
+        initializeWindows,
         setActiveWindow,
+        ready,
     };
 }

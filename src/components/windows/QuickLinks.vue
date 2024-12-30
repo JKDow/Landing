@@ -21,3 +21,11 @@ import ButtonLink from '../ButtonLink.vue'
         <ButtonLink color="yellow" />
     </div>
 </template>
+
+<script>
+    export default {
+        title: "Quick Links",
+        startActive: true,
+    }
+</script>
+

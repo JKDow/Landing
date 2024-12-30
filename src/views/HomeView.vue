@@ -1,5 +1,4 @@
 <script setup>
-import Counter from '../components/Counter.vue'
 import GoogleSearch from '../components/GoogleSearch.vue'
 import QuickAccess from '../components/QuickAccess.vue'
 import WindowSelector from '../components/WindowSelector.vue'

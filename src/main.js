@@ -12,8 +12,6 @@ app.mount('#app')
 // Initialize WASM after the Vue app is mounted
 async function run() {
     await init();
-
-    console.log("Wasm loaded");
     const canvas = document.getElementById('background');
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;

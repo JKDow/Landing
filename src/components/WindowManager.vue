@@ -1,24 +1,10 @@
 <script setup>
 import { useWindowManager } from '@/composables/useWindowManager';
 import { defineProps, onMounted } from 'vue';
-const { state, registerWindow } = useWindowManager();
-
-const windowData = [
-    {
-        id: 'QuickLinks',
-        title: 'Quick Links',
-        active: true,
-    },
-    {
-        id: 'Info',
-        title: 'Info',
-    },
-];
+const { state, initializeWindows } = useWindowManager();
 
 onMounted(() => {
-    windowData.forEach((window) => {
-        registerWindow(window);
-    });
+    initializeWindows();
 });
 
 </script>
