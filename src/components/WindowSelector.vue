@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, watch } from 'vue';
+import { ref, computed, watch, onMounted, onUnmounted } from 'vue';
 import { useWindowManager } from '@/composables/useWindowManager';
 
 const { state, setActiveWindow, ready } = useWindowManager();
@@ -14,13 +14,21 @@ const getCircularIndex = (index) => {
     return (index + totalWindows.value) % totalWindows.value;
 };
 
+// Visible windows for the spinner
 const visibleWindows = computed(() => {
-    const range = totalWindows.value < 5 ? totalWindows.value : 5;
+    let range;
+    if (totalWindows.value >= 5) range = 5;
+    else if (totalWindows.value >= 3) range = 3;
+    else range = 1;
+
     const result = [];
     for (let i = -Math.floor(range / 2); i <= Math.floor(range / 2); i++) {
         const circularIndex = getCircularIndex(position.value + i);
         if (state.windows[circularIndex]) {
-            result.push(state.windows[circularIndex]);
+            result.push({
+                ...state.windows[circularIndex],
+                offset: i, // Add an offset for smooth positioning
+            });
         }
     }
     return result;
@@ -51,19 +59,6 @@ function handleScroll(event) {
     }, 200); // Adjust debounce delay for smoothness
 }
 
-// Calculate the style for each visible window
-function getStyle(index) {
-    const offset = index - 2; // Centered item at index 2
-    const scale = 1 - Math.abs(offset) * 0.2; // Shrink items farther from the center
-    const translateY = offset * 80; // Distance between items
-    const opacity = 1 - Math.abs(offset) * 0.3; // Fade items farther from the center
-
-    return `
-        transform: translateY(${translateY}px) scale(${scale});
-        opacity: ${opacity};
-    `;
-}
-
 watch(
     ready,
     (isReady) => {
@@ -76,33 +71,60 @@ watch(
     },
     { immediate: true }
 );
+
+function getStyle(offset) {
+    const scale = 1 - Math.abs(offset) * 0.2; // Shrink items farther from the center
+    const translateY = offset * 70; // Distance between items
+    const opacity = 1 - Math.abs(offset) * 0.3; // Fade items farther from the center
+
+    return `
+        transform: translateY(${translateY}px) scale(${scale});
+        opacity: ${opacity};
+        z-index: ${visibleWindows.value.length - Math.abs(offset)}; /* Center item has the highest z-index */
+    `;
+}
+
+onMounted(() => {
+    // find Id spinner-container
+    const spinnerContainer = document.getElementById('spinner-container');
+    if (spinnerContainer) {
+        spinnerContainer.addEventListener('wheel', handleScroll, { passive: true });
+    }
+});
+
+onUnmounted(() => {
+    // Clean up the wheel event listener
+    const spinnerContainer = document.getElementById('spinner-container');
+    if (spinnerContainer) {
+        spinnerContainer.removeEventListener('wheel', handleScroll);
+    }
+});
 </script>
 
 <template>
-    <div class="w-full h-full relative overflow-hidden flex items-center">
-        <!-- Spinner Effect -->
-        <div
-            class="relative w-full h-full flex flex-col gap-6 items-center justify-center overflow-hidden"
-            @wheel="handleScroll"
-        >
-            <div
-                v-for="(window, index) in visibleWindows"
-                :key="index"
+    <div class="w-full h-full relative overflow-hidden flex items-center" id="spinner-container">
+        <button class="w-full absolute top-2 left-1/2 transform -translate-x-1/2 text-white cursor-pointer z-10"
+            @click="handleScroll({ deltaY: -1 })">
+            ▲
+        </button>
+        <transition-group name="spinner" tag="div"
+            class="relative w-full h-full flex flex-col gap-6 items-center justify-center overflow-hidden">
+            <div v-for="(window, index) in visibleWindows" :key="window.id"
                 class="absolute w-full flex items-center justify-center transform transition-transform duration-300 ease-in-out"
-                :style="getStyle(index)"
-                @click="setActive(window.id)"
-            >
+                :style="getStyle(window.offset)" @click="setActive(window.id)">
                 <button
-                    class="w-full h-full py-4 rounded-lg text-white text-base flex items-center justify-center font-semibold transition-all"
+                    class="w-full h-full py-4 rounded-lg text-white text-base flex items-center justify-center font-semibold"
                     :class="{
                         'bg-blue-500': state.activeWindow === window.id,
                         'bg-gray-600 hover:bg-gray-500': state.activeWindow !== window.id,
-                    }"
-                >
+                    }">
                     {{ window.title }}
                 </button>
             </div>
-        </div>
+        </transition-group>
+        <button class="absolute w-full bottom-2 left-1/2 transform -translate-x-1/2 text-center text-white cursor-pointer"
+            @click="handleScroll({ deltaY: 1 })">
+            ▼
+        </button>
     </div>
 </template>
-
