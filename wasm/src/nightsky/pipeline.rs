@@ -59,13 +59,15 @@ pub async fn request_adapter(
 }
 
 pub async fn request_device_and_queue(adapter: &wgpu::Adapter) -> (wgpu::Device, wgpu::Queue) {
+    let mut limits = wgpu::Limits::downlevel_webgl2_defaults();
+    limits.max_texture_dimension_2d = 4096;
     adapter
         .request_device(
             &wgpu::DeviceDescriptor {
                 required_features: wgpu::Features::empty(),
                 // WebGL doesn't support all of wgpu's features, so if
                 // we're building for the web, we'll have to disable some.
-                required_limits: wgpu::Limits::downlevel_webgl2_defaults(),
+                required_limits: limits,
                 label: None,
                 memory_hints: Default::default(),
             },

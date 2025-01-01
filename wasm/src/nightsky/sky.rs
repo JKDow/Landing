@@ -36,6 +36,8 @@ impl NightSky {
         let surface = create_surface(&instance, &canvas);
         log::info!("Created instance and surface");
         let adapter = request_adapter(&instance, &surface).await;
+        let limits = adapter.limits();
+        log::info!("Adapter limits: {:#?}", limits);
         let (device, queue) = request_device_and_queue(&adapter).await;
         log::info!("Created adapter, device, and queue");
         let surface_config = configure_surface(&adapter, &surface, canvas.height(), canvas.width());
