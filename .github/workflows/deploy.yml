@@ -34,11 +34,11 @@ jobs:
       id: cache-rust
       uses: actions/cache@v3
       with:
-        path: target
+        path: |
+          wasm/target
         key: rust-build-cache-${{ runner.os }}-${{ hashFiles('Cargo.lock') }}
         restore-keys: |
           rust-build-cache-${{ runner.os }}-
-        retention-days: 30
 
     - name: Cache wasm-pack
       id: cache-wasm-pack
@@ -48,7 +48,6 @@ jobs:
         key: wasm-pack-cache-${{ runner.os }}-${{ hashFiles('Cargo.lock') }}
         restore-keys: |
           wasm-pack-cache-${{ runner.os }}-
-        retention-days: 60
 
     - name: Install wasm-pack
       if: steps.cache-wasm-pack.outputs.cache-hit != 'true'
