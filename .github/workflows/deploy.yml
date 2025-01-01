@@ -25,10 +25,10 @@ jobs:
         node-version: 18
 
     - name: Setup Rust environment
-      uses: actions-rs/toolchain@v1
+      uses: actions-rust-lang/setup-rust-toolchain@v1
       with:
         toolchain: stable # Use stable Rust
-        override: true
+        profile: minimal
 
     - name: Cache Rust build artifacts
       id: cache-rust
@@ -44,7 +44,7 @@ jobs:
       id: cache-wasm-pack
       uses: actions/cache@v3
       with:
-        path: $CARGO_HOME/bin/wasm-pack
+        path: ${{ env.HOME }}/.cargo/bin/wasm-pack
         key: wasm-pack-cache-${{ runner.os }}-${{ hashFiles('Cargo.lock') }}
         restore-keys: |
           wasm-pack-cache-${{ runner.os }}-
