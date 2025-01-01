@@ -19,9 +19,7 @@ import WindowManager from '@/components/WindowManager.vue'
             <WindowSelector />
         </Card>
         <!-- Content -->
-        <Card outer_class="justify-center" height="90%" width="95%">
-            <WindowManager />
-        </Card>
+        <WindowManager />
         <!-- Side Access -->
         <Card outer_class="row-span-full col-start-3 justify-center" height="80%" width="50%">
             <QuickAccess />

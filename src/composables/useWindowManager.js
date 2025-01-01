@@ -18,14 +18,16 @@ function initializeWindows() {
                 const title = module.default?.title || id;
                 const startActive = module.default?.startActive || false;
 
-                state.windows.push({
-                    id,
-                    title,
-                    component: markRaw(module.default),
-                });
+                if (!state.windows.find((w) => w.id === id)) {
+                    state.windows.push({
+                        id,
+                        title,
+                        component: markRaw(module.default),
+                    });
 
-                if (startActive) {
-                    state.activeWindow = id;
+                    if (startActive) {
+                        state.activeWindow = id;
+                    }
                 }
             })
         )
@@ -33,6 +35,7 @@ function initializeWindows() {
         if (!state.activeWindow && state.windows.length > 0) {
             state.activeWindow = state.windows[0].id;
         }
+        state.windows.sort((a, b) => a.id.localeCompare(b.id));
         ready.value = true;
     });
 }

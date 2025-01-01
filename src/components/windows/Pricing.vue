@@ -2,7 +2,7 @@
 </script>
 
 <template>
-    <div class="w-full h-full text-white flex flex-col gap-4 items-center justify-center">
+    <div class="w-full h-full text-white flex flex-col gap-4 items-center justify-center bg-red-600">
     </div>
 </template>
 
