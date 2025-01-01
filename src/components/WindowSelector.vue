@@ -1,32 +1,16 @@
 <script setup>
-import { ref, computed, watch, onMounted, onUnmounted } from 'vue';
-import { useWindowManager } from '@/composables/useWindowManager';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
+import manager from '@/composables/useWindowManager';
 
-const { state, setActiveWindow, ready } = useWindowManager();
-
-const position = ref(0); // Tracks the current center position
-
-// Total windows available
-const totalWindows = computed(() => state.windows.length);
-
-// Circularly get the index for infinite scrolling
-const getCircularIndex = (index) => {
-    return (index + totalWindows.value) % totalWindows.value;
-};
-
-// Visible windows for the spinner
 const visibleWindows = computed(() => {
-    let range;
-    if (totalWindows.value >= 5) range = 5;
-    else if (totalWindows.value >= 3) range = 3;
-    else range = 1;
+    const range = manager.totalWindows >= 5 ? 5 : Math.min(manager.totalWindows, 3);
 
     const result = [];
     for (let i = -Math.floor(range / 2); i <= Math.floor(range / 2); i++) {
-        const circularIndex = getCircularIndex(position.value + i);
-        if (state.windows[circularIndex]) {
+        const circularIndex = manager.getCircularIndex(manager.activeIndex + i);
+        if (manager.windows[circularIndex]) {
             result.push({
-                ...state.windows[circularIndex],
+                ...manager.windows[circularIndex],
                 offset: i, // Add an offset for smooth positioning
             });
         }
@@ -34,12 +18,12 @@ const visibleWindows = computed(() => {
     return result;
 });
 
-// Update the active window and center position
-function setActive(id) {
-    const index = state.windows.findIndex((window) => window.id === id);
-    if (index !== -1) {
-        position.value = index;
-        setActiveWindow(id);
+function setActive(offset) {
+    const newWindow = visibleWindows.value.find((window) => window.offset === offset);
+    if (offset < 0) {
+        for (let i = 0; i < Math.abs(offset); i++) manager.moveUp();
+    } else if (offset > 0) {
+        for (let i = 0; i < offset; i++) manager.moveDown();
     }
 }
 
@@ -50,27 +34,14 @@ function handleScroll(event) {
     if (debounceTimeout) return; // Skip if still in debounce period
 
     const direction = event.deltaY > 0 ? 1 : -1; // Scroll up or down
-    position.value = getCircularIndex(position.value + direction);
-    setActive(state.windows[getCircularIndex(position.value)].id);
+    if (direction === 1) manager.moveDown();
+    else manager.moveUp();
 
     // Debounce to limit scroll sensitivity
     debounceTimeout = setTimeout(() => {
         debounceTimeout = null;
     }, 200); // Adjust debounce delay for smoothness
 }
-
-watch(
-    ready,
-    (isReady) => {
-        if (isReady) {
-            const activeIndex = state.windows.findIndex((window) => window.id === state.activeWindow);
-            if (activeIndex !== -1) {
-                position.value = activeIndex;
-            }
-        }
-    },
-    { immediate: true }
-);
 
 function getStyle(offset) {
     const scale = 1 - Math.abs(offset) * 0.2; // Shrink items farther from the center
@@ -83,47 +54,33 @@ function getStyle(offset) {
         z-index: ${visibleWindows.value.length - Math.abs(offset)}; /* Center item has the highest z-index */
     `;
 }
-
-onMounted(() => {
-    // find Id spinner-container
-    const spinnerContainer = document.getElementById('spinner-container');
-    if (spinnerContainer) {
-        spinnerContainer.addEventListener('wheel', handleScroll, { passive: true });
-    }
-});
-
-onUnmounted(() => {
-    // Clean up the wheel event listener
-    const spinnerContainer = document.getElementById('spinner-container');
-    if (spinnerContainer) {
-        spinnerContainer.removeEventListener('wheel', handleScroll);
-    }
-});
 </script>
 
 <template>
-    <div class="w-full h-full relative overflow-hidden flex items-center" id="spinner-container">
+    <div class="w-full h-full relative overflow-hidden flex items-center" id="spinner-container"
+        @wheel.passive="handleScroll">
         <button class="w-full absolute top-2 left-1/2 transform -translate-x-1/2 text-white cursor-pointer z-10"
-            @click="handleScroll({ deltaY: -1 })">
+            @click="manager.moveUp">
             ▲
         </button>
         <transition-group name="spinner" tag="div"
             class="relative w-full h-full flex flex-col gap-6 items-center justify-center overflow-hidden">
             <div v-for="(window, index) in visibleWindows" :key="window.id"
                 class="absolute w-full flex items-center justify-center transform transition-transform duration-300 ease-in-out"
-                :style="getStyle(window.offset)" @click="setActive(window.id)">
+                :style="getStyle(window.offset)" @click="setActive(window.offset)">
                 <button
                     class="w-full h-full py-4 rounded-lg text-white text-base flex items-center justify-center font-semibold"
                     :class="{
-                        'bg-blue-500': state.activeWindow === window.id,
-                        'bg-gray-600 hover:bg-gray-500': state.activeWindow !== window.id,
+                        'bg-blue-500': manager.activeWindow === window.id,
+                        'bg-gray-600 hover:bg-gray-500': manager.activeWindow !== window.id,
                     }">
                     {{ window.title }}
                 </button>
             </div>
         </transition-group>
-        <button class="absolute w-full bottom-2 left-1/2 transform -translate-x-1/2 text-center text-white cursor-pointer"
-            @click="handleScroll({ deltaY: 1 })">
+        <button
+            class="absolute w-full bottom-2 left-1/2 transform -translate-x-1/2 text-center text-white cursor-pointer"
+            @click="manager.moveDown">
             ▼
         </button>
     </div>

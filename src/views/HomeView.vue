@@ -15,9 +15,11 @@ import WindowManager from '@/components/WindowManager.vue'
             <GoogleSearch />
         </Card>
         <!-- Scroll -->
-        <Card outer_class="justify-end" height="70%" width="40%" padding="p-2">
-            <WindowSelector />
-        </Card>
+        <div class="h-full w-full pr-4">
+            <Card outer_class="justify-end" height="70%" width="40%" padding="p-2">
+                <WindowSelector />
+            </Card>
+        </div>
         <!-- Content -->
         <WindowManager />
         <!-- Side Access -->

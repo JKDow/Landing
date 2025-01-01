@@ -1,5 +1,5 @@
 pub fn setup_logger() {
-    console_log::init_with_level(log::Level::Info).expect("Couldn't initialize logger");
+    console_log::init_with_level(log::Level::Warn).expect("Couldn't initialize logger");
     std::panic::set_hook(Box::new(console_error_panic_hook::hook));
     log::info!("Started wasm logger");
 }

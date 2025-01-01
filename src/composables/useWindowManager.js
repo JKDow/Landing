@@ -1,54 +1,83 @@
-import { reactive, markRaw, ref } from 'vue';
+import { reactive, markRaw, computed } from 'vue';
 
-const state = reactive({
-    windows: [],
-    activeWindow: null,
-});
+class WindowManager {
+    constructor() {
+        this.state = reactive({
+            windows: [],
+            activeWindow: null,
+            direction: 'up',
+        });
+        this.modules = import.meta.glob('@/components/windows/*.vue');
+    }
 
-const ready = ref(false);
+    async initializeWindows() {
+        const moduleEntries = Object.entries(this.modules);
 
-const modules = import.meta.glob('@/components/windows/*.vue');
-
-// Automatically register all windows
-function initializeWindows() {
-    Promise.all(
-        Object.entries(modules).map(([path, loader]) =>
-            loader().then((module) => {
+        await Promise.all(
+            moduleEntries.map(async ([path, loader]) => {
+                const module = await loader();
                 const id = path.match(/\/([^/]+)\.vue$/)[1];
                 const title = module.default?.title || id;
                 const startActive = module.default?.startActive || false;
 
-                if (!state.windows.find((w) => w.id === id)) {
-                    state.windows.push({
+                if (!this.state.windows.find((w) => w.id === id)) {
+                    this.state.windows.push({
                         id,
                         title,
                         component: markRaw(module.default),
                     });
 
                     if (startActive) {
-                        state.activeWindow = id;
+                        this.state.activeWindow = id;
                     }
                 }
             })
-        )
-    ).then(() => {
-        if (!state.activeWindow && state.windows.length > 0) {
-            state.activeWindow = state.windows[0].id;
+        );
+
+        if (!this.state.activeWindow && this.state.windows.length > 0) {
+            this.state.activeWindow = this.state.windows[0].id;
         }
-        state.windows.sort((a, b) => a.id.localeCompare(b.id));
-        ready.value = true;
-    });
+
+        this.state.windows.sort((a, b) => a.id.localeCompare(b.id));
+    }
+
+    moveUp() {
+        this.state.direction = 'up';
+        this.state.activeWindow = this.state.windows[this.getCircularIndex(this.activeIndex - 1)].id;
+    }
+
+    moveDown() {
+        this.state.direction = 'down';
+        this.state.activeWindow = this.state.windows[this.getCircularIndex(this.activeIndex + 1)].id;
+    }
+
+    get totalWindows() {
+        return computed(() => this.state.windows.length).value;
+    }
+
+    get activeIndex() {
+        return computed(() =>
+            this.state.windows.findIndex((window) => window.id === this.state.activeWindow)
+        ).value;
+    }
+
+    get windows() {
+        return this.state.windows;
+    }
+
+    get activeWindow() {
+        return this.state.activeWindow;
+    }
+
+    get direction() {
+        return this.state.direction
+    }
+
+    getCircularIndex(index) {
+        return (index + this.totalWindows) % this.totalWindows;
+    }
 }
 
-function setActiveWindow(id) {
-    state.activeWindow = id;
-}
+const manager = new WindowManager();
 
-export function useWindowManager() {
-    return {
-        state,
-        initializeWindows,
-        setActiveWindow,
-        ready,
-    };
-}
+export default manager;
