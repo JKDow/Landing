@@ -69,7 +69,7 @@ function getClass(offset) {
 
 .windows-down-enter-from,
 .windows-up-leave-to {
-    transform: translateX(60px) translateY(-60px) scale(1.1);
+    transform: translateX(30px) translateY(-30px) scale(1);
     opacity: 0;
 }
 
