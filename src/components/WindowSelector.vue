@@ -3,6 +3,7 @@ import { ref, computed, onMounted, onUnmounted } from 'vue';
 import manager from '@/composables/useWindowManager';
 
 const visibleWindows = computed(() => {
+    if (!manager.ready) return [];
     const range = manager.totalWindows >= 5 ? 5 : Math.min(manager.totalWindows, 3);
 
     const result = [];
@@ -19,7 +20,6 @@ const visibleWindows = computed(() => {
 });
 
 function setActive(offset) {
-    const newWindow = visibleWindows.value.find((window) => window.offset === offset);
     if (offset < 0) {
         for (let i = 0; i < Math.abs(offset); i++) manager.moveUp();
     } else if (offset > 0) {
@@ -47,12 +47,11 @@ function getStyle(offset) {
     const scale = 1 - Math.abs(offset) * 0.2; // Shrink items farther from the center
     const translateY = offset * 70; // Distance between items
     const opacity = 1 - Math.abs(offset) * 0.3; // Fade items farther from the center
-
-    return `
-        transform: translateY(${translateY}px) scale(${scale});
-        opacity: ${opacity};
-        z-index: ${visibleWindows.value.length - Math.abs(offset)}; /* Center item has the highest z-index */
-    `;
+    return {
+        transform: `translateY(${translateY}px) scale(${scale})`,
+        opacity: opacity,
+        zIndex: visibleWindows.value.length - Math.abs(offset),
+    };
 }
 </script>
 

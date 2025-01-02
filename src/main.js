@@ -3,11 +3,14 @@ import App from './App.vue'
 import router from './router'
 import './index.css'
 
-import init, { NightSky } from './wasm/wasm.js';
-
 const app = createApp(App)
 app.use(router)
 app.mount('#app')
+
+import init, { NightSky } from './wasm/wasm.js';
+
+import manager from '@/composables/useWindowManager';
+manager.initializeWindows();
 
 // Initialize WASM after the Vue app is mounted
 async function run() {

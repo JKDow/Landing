@@ -6,6 +6,7 @@ class WindowManager {
             windows: [],
             activeWindow: null,
             direction: 'up',
+            ready: false,
         });
         this.modules = import.meta.glob('@/components/windows/*.vue');
     }
@@ -39,6 +40,8 @@ class WindowManager {
         }
 
         this.state.windows.sort((a, b) => a.id.localeCompare(b.id));
+
+        this.state.ready = true;
     }
 
     moveUp() {
@@ -71,6 +74,10 @@ class WindowManager {
 
     get direction() {
         return this.state.direction
+    }
+
+    get ready() {
+        return this.state.ready;
     }
 
     getCircularIndex(index) {
