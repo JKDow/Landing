@@ -11,12 +11,17 @@ const options = ref({
 });
 const starSystem = ref(null);
 
-const targetStarCount = 8000;
+let targetStarCount = 8000;
 const starIncrement = 1000;
 
 export function useStarSystem() {
     async function setup() {
         await init();
+        if (window.innerWidth < 900) {
+            targetStarCount = 2000;
+            options.value.star_size = 1.5;
+        }
+
         canvas.value = document.getElementById('background');
         canvas.value.width = window.innerWidth;
         canvas.value.height = window.innerHeight;

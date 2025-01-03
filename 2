@@ -70,7 +70,7 @@ function swipeMove(event) {
 
 function swipeEnd() {
     const dy = touchPos.endY - touchPos.startY;
-    if (Math.abs(dy) < 50) return;
+    if (Math.abs(dy) < 50) return; // Skip if swipe distance is too short
     if (dy > 50) manager.moveUp();
     else if (dy < -50) manager.moveDown();
 }
@@ -107,7 +107,7 @@ function swipeEnd() {
             </div>
         </div>
         <button
-            class="absolute w-1/3 lg:w-full bottom-2 left-1/2 transform -translate-x-1/2 text-center text-white cursor-pointer z-10"
+            class="absolute w-1/3 lg:w-full bottom-2 left-1/2 transform -translate-x-1/2 text-center text-white cursor-pointer z-10 max-lg:pointer-events-none"
             @click="manager.moveDown">
             ▼
         </button>

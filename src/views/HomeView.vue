@@ -8,15 +8,15 @@ import WindowManager from '@/components/WindowManager.vue'
 
 <template>
     <div
-        class="flex max-lg:justify-start max-lg:items-center max-lg:gap-8 flex-col lg:grid lg:grid-cols-[2fr_5fr_2fr] lg:grid-rows-[1fr_2fr] h-full w-full">
+        class="flex max-lg:justify-start max-lg:items-center max-lg:gap-4 flex-col lg:grid lg:grid-cols-[2fr_5fr_2fr] lg:grid-rows-[1fr_2fr] h-full w-full">
         <!-- Empty cell -->
         <div class=""></div>
         <!-- Search Bar -->
-        <Card outer_class="justify-center max-lg:h-[10%]" height="25%" width="70%">
+        <Card outer_class="justify-center max-lg:h-[8%]" height="25%" width="70%">
             <GoogleSearch />
         </Card>
         <!-- Scroll -->
-        <Card outer_class="justify-center max-lg:h-[15%] lg:justify-end lg:-translate-x-[20px]" height="70%" width="40%"
+        <Card outer_class="justify-center max-lg:h-[10%] lg:justify-end lg:-translate-x-[20px]" height="70%" width="40%"
             padding="p-2">
             <WindowSelector />
         </Card>
