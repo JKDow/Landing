@@ -59,29 +59,13 @@ const touchPos = reactive({
     startY: 0,
     endY: 0,
 });
-
-function swipeStart(event) {
-    touchPos.startY = event.touches[0].clientY;
-}
-
-function swipeMove(event) {
-    touchPos.endY = event.touches[0].clientY;
-}
-
-function swipeEnd() {
-    const dy = touchPos.endY - touchPos.startY;
-    if (Math.abs(dy) < 50) return;
-    if (dy > 50) manager.moveUp();
-    else if (dy < -50) manager.moveDown();
-}
 </script>
 
 <template>
-    <div class="w-full h-full relative lg:overflow-hidden flex items-center" id="spinner-container"
-        @touchstart.passive="swipeStart" @touchmove.passive="swipeMove" @touchend.passive="swipeEnd"
+    <div class="w-full h-full relative lg:overflow-hidden flex flex-row lg:flex-col max-lg:gap-3 items-center" id="spinner-container"
         @wheel.passive="handleScroll">
         <button
-            class="w-1/3 lg:w-full absolute top-2 left-1/2 transform -translate-x-1/2 text-white cursor-pointer z-10"
+            class="w-[20%] max-lg:bg-gray-600 max-lg:h-full max-lg:rounded-lg lg:w-full lg:absolute top-2 left-1/2 transform lg:-translate-x-1/2 text-white cursor-pointer z-10"
             @click="manager.moveUp">
             ▲
         </button>
@@ -107,7 +91,7 @@ function swipeEnd() {
             </div>
         </div>
         <button
-            class="absolute w-1/3 lg:w-full bottom-2 left-1/2 transform -translate-x-1/2 text-center text-white cursor-pointer z-10"
+            class="max-lg:bg-gray-600 max-lg:h-full max-lg:rounded-lg lg:absolute w-[20%] lg:w-full lg:bottom-2 lg:left-1/2 transform lg:-translate-x-1/2 text-center text-white cursor-pointer z-10"
             @click="manager.moveDown">
             ▼
         </button>
