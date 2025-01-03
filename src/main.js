@@ -12,5 +12,5 @@ manager.initializeWindows();
 
 import { useStarSystem } from '@/composables/useStarSystem';
 const { setup } = useStarSystem();
-await setup();
+setup().catch(console.error);
 
