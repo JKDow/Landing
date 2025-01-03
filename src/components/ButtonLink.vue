@@ -62,7 +62,7 @@ const iconPath = computed(() => {
 
 <template>
     <a :href="href" :class="[
-        'p-4 gap-4 w-full h-full rounded-lg shadow-md flex flex-col items-center justify-center hover:scale-105 transform transition duration-300',
+        'p-2 lg:p-4 gap-2 lg:gap-4 w-full h-full rounded-lg shadow-md flex flex-col items-center justify-center lg:hover:scale-105 transform transition duration-300',
         color
     ]">
         <div class="grid place-items-center h-full w-full">

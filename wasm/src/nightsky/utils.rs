@@ -1,9 +1,3 @@
-pub fn setup_logger() {
-    console_log::init_with_level(log::Level::Warn).expect("Couldn't initialize logger");
-    std::panic::set_hook(Box::new(console_error_panic_hook::hook));
-    log::info!("Started wasm logger");
-}
-
 pub fn hex_to_wgpu_color(hex: &str) -> Result<wgpu::Color, String> {
     // Remove the '#' prefix if present
     let hex = hex.strip_prefix('#').unwrap_or(hex);
@@ -41,6 +35,3 @@ pub fn hex_to_wgpu_color(hex: &str) -> Result<wgpu::Color, String> {
     })
 }
 
-pub fn random_range(min: f32, max: f32) -> f32 {
-    js_sys::Math::random() as f32 * (max - min) + min
-}

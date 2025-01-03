@@ -7,7 +7,7 @@ use wgpu::{util::DeviceExt, SurfaceTargetUnsafe};
 
 use super::{circle::Circle, star::Star};
 
-const SAMPLE_COUNT: u32 = 8;
+const SAMPLE_COUNT: u32 = 4;
 
 /// Create a new wgpu Instance
 /// # Info
@@ -27,7 +27,7 @@ pub fn create_instance() -> wgpu::Instance {
 pub fn create_surface(
     instance: &wgpu::Instance,
     canvas: &HtmlCanvasElement,
-) -> wgpu::Surface<'static> {
+) -> Result<wgpu::Surface<'static>, wgpu::CreateSurfaceError> {
     let value: &JsValue = &canvas;
     let obj: NonNull<c_void> = NonNull::from(value).cast();
     let handle = WebCanvasWindowHandle::new(obj);
@@ -38,7 +38,7 @@ pub fn create_surface(
         raw_window_handle: raw_window_handle::RawWindowHandle::WebCanvas(handle),
     };
 
-    unsafe { instance.create_surface_unsafe(target) }.unwrap()
+    unsafe { instance.create_surface_unsafe(target) }
 }
 
 /// Request an adapter from the instance to fit the surface
@@ -47,7 +47,7 @@ pub fn create_surface(
 pub async fn request_adapter(
     instance: &wgpu::Instance,
     surface: &wgpu::Surface<'_>,
-) -> wgpu::Adapter {
+) -> Option<wgpu::Adapter> {
     instance
         .request_adapter(&wgpu::RequestAdapterOptions {
             power_preference: wgpu::PowerPreference::default(),
@@ -55,10 +55,9 @@ pub async fn request_adapter(
             force_fallback_adapter: false,
         })
         .await
-        .unwrap()
 }
 
-pub async fn request_device_and_queue(adapter: &wgpu::Adapter) -> (wgpu::Device, wgpu::Queue) {
+pub async fn request_device_and_queue(adapter: &wgpu::Adapter) -> Result<(wgpu::Device, wgpu::Queue), wgpu::RequestDeviceError> {
     let mut limits = wgpu::Limits::downlevel_webgl2_defaults();
     limits.max_texture_dimension_2d = 4096;
     adapter
@@ -74,7 +73,6 @@ pub async fn request_device_and_queue(adapter: &wgpu::Adapter) -> (wgpu::Device,
             None,
         )
         .await
-        .unwrap()
 }
 
 pub fn create_multisampled_frame(

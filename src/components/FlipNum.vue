@@ -50,7 +50,7 @@ function getStyle(i) {
     <div class="" :style="{ perspective: `${perspective.value}px` }">
         <div class="w-full h-full cube relative" :style="outerStyle">
             <template v-for="i in 4" :key="i">
-                <div class="cube-face grid place-items-center absolute bg-stone-800 border-black/50 border"
+                <div class="cube-face grid place-items-center absolute bg-stone-800 border-black/50 border max-lg:text-xl"
                     :style="getStyle(i)">
                     <div :id="`face-${i}`" class="text-white" v-text="faces[i - 1]"></div>
                 </div>

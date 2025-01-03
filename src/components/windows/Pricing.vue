@@ -44,7 +44,7 @@ function shiftRight() {
         </div>
         <div class="flex flex-row gap-4 items-center relative">
             <transition-group :name="direction">
-                <div v-for="block in blocks" :key="block.id" :class="['w-20 h-20 rounded-lg shadow-md', block.color]">
+                <div v-for="block in blocks" :key="block.id" :class="['w-10 h-10 lg:w-20 lg:h-20 rounded-lg shadow-md', block.color]">
                 </div>
             </transition-group>
         </div>

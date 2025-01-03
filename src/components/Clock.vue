@@ -15,9 +15,7 @@ onMounted(() => {
 
 function setClockSize() {
     const width = window.innerWidth;
-    if (width < 640) {
-        clockSize.value = 20;
-    } else if (width < 1280) {
+    if (width < 1280) {
         clockSize.value = 30;
     } else if (width < 1900) {
         clockSize.value = 40;
@@ -46,7 +44,7 @@ const datetime = computed(() => {
     };
 });
 
-const ampmClass = "px-2 py-1 grid place-items-center text-center";
+const ampmClass = "px-1 lg:px-2 lg:py-1 grid place-items-center text-center";
 const amClass = computed(() => {
     return [
         datetime.value.ampm === 'AM' ? 'bg-blue-400 text-stone-900' : 'bg-gray-300 text-gray-400',
@@ -84,23 +82,23 @@ const days = computed(() => {
 <template>
     <div class="w-full h-full flex flex-col justify-between items-center gap-2">
         <!-- Time Display -->
-        <div class="text-4xl font-mono flex flex-row gap-2 w-full justify-center">
+        <div class="text-4xl font-mono flex flex-row gap-2 w-full justify-center items-center">
             <FlipNum :number="datetime.h1" :size="clockSize" />
             <FlipNum :number="datetime.h2" :size="clockSize" />
             <p class="font-semibold">:</p>
             <FlipNum :number="datetime.m1" :size="clockSize" />
             <FlipNum :number="datetime.m2" :size="clockSize" />
-            <div class="flex text-lg font-semibold rounded-xl overflow-hidden">
+            <div class="flex h-[80%] text-base lg:text-lg font-semibold rounded-xl overflow-hidden">
                 <div :class="[amClass, ampmClass]">AM</div>
                 <div :class="[pmClass, ampmClass]">PM</div>
             </div>
         </div>
         <!-- Date Display -->
-        <div class="w-full flex flex-row gap-2 justify-center">
+        <div class="w-full max-w-full flex flex-row gap-2 justify-center px-2">
             <div v-for="day in days" :key="day.date"
-                class="flex flex-col w-14 min-[2500px]:w-20 items-center border border-stone-400 rounded-lg p-2 cursor-default shadow-sm hover:shadow-lg transition-shadow">
+                class="flex flex-col basis-[14%] items-center border border-stone-400 rounded-lg p-1 lg:p-2 cursor-default shadow-sm hover:shadow-lg transition-shadow">
                 <div class="text-sm font-medium text-gray-600" v-text="day.day"></div>
-                <div class="mt-1 w-7 h-7 min-[2500px]:w-14 min-[2500px]:h-14 flex items-center justify-center rounded-full text-lg min-[2500px]:text-2xl font-semibold"
+                <div class="mt-1 px-2 flex items-center justify-center rounded-full text-lg min-[2500px]:text-2xl font-semibold"
                     :class="day.date === datetime.date ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-800'"
                     v-text="day.date"></div>
             </div>

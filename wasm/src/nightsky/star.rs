@@ -1,4 +1,4 @@
-use super::utils::random_range;
+use crate::utils::random_range;
 
 const VEL_MOD: f32 = 0.005;
 const STAR_COLORS: [[f32; 3]; 5] = [
@@ -48,7 +48,9 @@ impl Star {
         }
     }
 
-    pub fn generate(count: usize) -> Vec<Star> {
+    pub fn generate(count: usize, size: f32, dim: bool) -> Vec<Star> {
+        let size = size.clamp(0.1, 4.0);
+        let brightness = if dim { 0.0 } else { random_range(0.2, 1.0) };
         (0..count)
             .map(|_| {
                 let base_color = STAR_COLORS[random_range(0.0, STAR_COLORS.len() as f32) as usize];
@@ -61,8 +63,8 @@ impl Star {
                 Star::new(
                     random_range(-1.0, 1.0),
                     random_range(-1.0, 1.0),
-                    random_range(0.001, 0.003),
-                    random_range(0.2, 1.0),
+                    random_range(0.001, 0.003) * size,
+                    brightness,
                     random_range(0.08, 0.3),
                     random_range(-1.0, 1.0) * VEL_MOD,
                     random_range(-1.0, 1.0) * VEL_MOD,

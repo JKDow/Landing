@@ -7,23 +7,25 @@ import WindowManager from '@/components/WindowManager.vue'
 </script>
 
 <template>
-    <div class="grid grid-cols-[2fr_5fr_2fr] grid-rows-[1fr_2fr] h-full w-full">
+    <div
+        class="flex max-lg:justify-start max-lg:items-center max-lg:gap-8 flex-col lg:grid lg:grid-cols-[2fr_5fr_2fr] lg:grid-rows-[1fr_2fr] h-full w-full">
         <!-- Empty cell -->
         <div class=""></div>
         <!-- Search Bar -->
-        <Card outer_class="justify-center" height="25%" width="70%">
+        <Card outer_class="justify-center max-lg:h-[10%]" height="25%" width="70%">
             <GoogleSearch />
         </Card>
         <!-- Scroll -->
-        <div class="h-full w-full pr-4">
-            <Card outer_class="justify-end" height="70%" width="40%" padding="p-2">
-                <WindowSelector />
-            </Card>
-        </div>
+        <Card outer_class="justify-center max-lg:h-[15%] lg:justify-end lg:-translate-x-[20px]" height="70%" width="40%"
+            padding="p-2">
+            <WindowSelector />
+        </Card>
         <!-- Content -->
-        <WindowManager />
+        <div class="w-[90%] max-lg:grow max-lg:pb-8 max-lg:justify-self-end lg:h-full lg:w-full">
+            <WindowManager />
+        </div>
         <!-- Side Access -->
-        <Card outer_class="row-span-full col-start-3 justify-center" height="80%" width="50%">
+        <Card outer_class="row-span-full lg:col-start-3 justify-center max-lg:hidden" height="80%" width="50%">
             <QuickAccess />
         </Card>
     </div>

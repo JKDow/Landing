@@ -1,6 +1,7 @@
 <script setup>
 import manager from '@/composables/useWindowManager';
 import Card from '@/components/Card.vue';
+import WindowSelector from '@/components/WindowSelector.vue';
 import { defineProps, computed, ref } from 'vue';
 
 const visibleWindows = computed(() => {
@@ -27,9 +28,9 @@ function getClass(offset) {
 
 <template>
     <transition-group :name="`windows-${manager.direction}`" tag="div"
-        class="w-full h-full max-h-full max-w-full relative">
+        class="max-lg:justify-self-end w-full h-full max-h-full max-w-full relative grow">
         <div v-for="(window, index) in visibleWindows" :key="window.id" :id="`contentCard-${window.id}`"
-            :class="['w-full h-full absolute', getClass(window.offset)]">
+            :class="['w-full h-full absolute transform-gpu will-change-transform', getClass(window.offset)]">
             <Card outer_class="justify-center" inner_class="flex flex-col gap-2 w-full h-full"
                 :active="window.offset === 0" height="85%" width="90%">
                 <component :is="window.component" />

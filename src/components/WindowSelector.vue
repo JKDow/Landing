@@ -56,7 +56,7 @@ function getStyle(offset) {
 </script>
 
 <template>
-    <div class="w-full h-full relative overflow-hidden flex items-center" id="spinner-container"
+    <div class="w-full h-full relative lg:overflow-hidden flex items-center" id="spinner-container"
         @wheel.passive="handleScroll">
         <button class="w-full absolute top-2 left-1/2 transform -translate-x-1/2 text-white cursor-pointer z-10"
             @click="manager.moveUp">

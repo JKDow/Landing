@@ -4,14 +4,14 @@ import Clock from '@/components/Clock.vue'
 </script>
 
 <template>
-    <div class="w-full h-full grid grid-cols-5 grid-rows-3 gap-4">
+    <div class="w-full h-full grid grid-cols-2 lg:grid-cols-5 lg:grid-rows-3 gap-4 max-lg:overflow-scroll">
         <ButtonLink color="blue" name="Github" href="https://github.com" />
         <ButtonLink color="yellow" name="Google" href="https://google.com" />
         <ButtonLink color="pink" name="Gmail" href="https://mail.google.com" />
         <ButtonLink color="purple" name="AWS" href="https://aws.amazon.com/" />
         <ButtonLink color="green" name="ChatGPT" href="https://chatgpt.com" />
         <ButtonLink color="pink" name="Laravel" href="https://laravel.com/" />
-        <div class="w-full h-full col-span-3">
+        <div class="w-full h-full col-span-2 lg:col-span-3 max-lg:row-start-1">
             <div class="bg-zinc-100 shadow-zinc-50/30 p-2 w-full h-full rounded-lg shadow-md">
                 <Clock />
             </div>
