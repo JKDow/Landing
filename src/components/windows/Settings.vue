@@ -1,7 +1,7 @@
 <script setup>
 import { useStarSystem } from "@/composables/useStarSystem";
 
-const { addStars, removeStars } = useStarSystem();
+const { addStars, removeStars, starCount } = useStarSystem();
 
 const boxStyle = "border h-full w-full rounded-md border-gray-300/50 bg-stone-900 p-2";
 const headingStyle = "text-lg font-semibold";
@@ -13,11 +13,6 @@ const headingStyle = "text-lg font-semibold";
             <h1 :class="headingStyle">Settings</h1>
         </div>
         <div :class="boxStyle">
-            <h1 :class="headingStyle">Stars</h1>
-            <div class="grid grid-cols-2 gap-2">
-                <button class="bg-gray-700 p-2 rounded-md hover:bg-gray-800" @click="addStars(500)">Add Stars (+500)</button>
-                <button class="bg-gray-700 p-2 rounded-md hover:bg-gray-800" @click="removeStars(500)">Remove Stars (-500)</button>
-            </div>
         </div>
         <div :class="boxStyle">
             <h1 :class="headingStyle">Resources</h1>

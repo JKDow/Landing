@@ -97,4 +97,8 @@ impl StarRender for BasicSky {
     fn remove_stars(&mut self, count: u32) {
         self.stars.truncate(self.stars.len().saturating_sub(count as usize));
     }
+
+    fn get_num_stars(&self) -> u32 {
+        self.stars.len() as u32
+    }
 }

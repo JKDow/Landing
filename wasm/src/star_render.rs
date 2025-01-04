@@ -7,4 +7,5 @@ pub trait StarRender {
     fn resize(&mut self, canvas: HtmlCanvasElement);
     fn add_stars(&mut self, count: u32);
     fn remove_stars(&mut self, count: u32);
+    fn get_num_stars(&self) -> u32;
 }

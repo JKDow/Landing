@@ -24,11 +24,3 @@ import Clock from '@/components/Clock.vue'
         <ButtonLink color="yellow" name="DevDocs" href="https://devdocs.io/" />
     </div>
 </template>
-
-<script>
-    export default {
-        title: "Quick Links",
-        startActive: true,
-    }
-</script>
-

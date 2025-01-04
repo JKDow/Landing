@@ -25,4 +25,7 @@ impl StarRender for EmptySky {
     fn resize(&mut self, _canvas: HtmlCanvasElement) {}
     fn add_stars(&mut self, _count: u32) {}
     fn remove_stars(&mut self, _count: u32) {}
+    fn get_num_stars(&self) -> u32 {
+        0
+    }
 }

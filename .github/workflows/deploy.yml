@@ -27,30 +27,14 @@ jobs:
     - name: Setup Rust environment
       uses: actions-rust-lang/setup-rust-toolchain@v1
       with:
-        toolchain: stable # Use stable Rust
-        profile: minimal
-
-    - name: Cache Rust build artifacts
-      id: cache-rust
-      uses: actions/cache@v3
-      with:
-        path: |
+        toolchain: stable
+        cache: true
+        cache-directories: |
           wasm/target
-        key: rust-build-cache-${{ runner.os }}-${{ hashFiles('Cargo.lock') }}
-        restore-keys: |
-          rust-build-cache-${{ runner.os }}-
-
-    - name: Cache wasm-pack
-      id: cache-wasm-pack
-      uses: actions/cache@v3
-      with:
-        path: ${{ env.HOME }}/.cargo/bin/wasm-pack
-        key: wasm-pack-cache-${{ runner.os }}-${{ hashFiles('Cargo.lock') }}
-        restore-keys: |
-          wasm-pack-cache-${{ runner.os }}-
+          ~/.cargo/bin/wasm-pack  # Cache wasm-pack binary
 
     - name: Install wasm-pack
-      if: steps.cache-wasm-pack.outputs.cache-hit != 'true'
+      if: !command -v wasm-pack
       run: cargo install wasm-pack
 
     - name: Install dependencies

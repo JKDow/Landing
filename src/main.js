@@ -7,8 +7,9 @@ const app = createApp(App)
 app.use(router)
 app.mount('#app')
 
-import manager from '@/composables/useWindowManager';
-manager.initializeWindows();
+import { useWindowManager } from '@/composables/useWindowManager';
+const { initializeWindows } = useWindowManager();
+initializeWindows('Home').catch(console.error);
 
 import { useStarSystem } from '@/composables/useStarSystem';
 const { setup } = useStarSystem();

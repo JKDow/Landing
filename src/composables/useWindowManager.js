@@ -1,90 +1,73 @@
-import { reactive, markRaw, computed } from 'vue';
+import { markRaw, computed, ref } from 'vue';
 
-class WindowManager {
-    constructor() {
-        this.state = reactive({
-            windows: [],
-            activeWindow: null,
-            direction: 'up',
-            ready: false,
-        });
-        this.modules = import.meta.glob('@/components/windows/*.vue');
-    }
+const windowList = ref([]);
+const activeWindow = ref(null);
+const direction = ref('up');
+const ready = ref(false);
 
-    async initializeWindows() {
-        const moduleEntries = Object.entries(this.modules);
+const modules = import.meta.glob('@/components/windows/*.vue');
 
+export function useWindowManager() {
+    async function initializeWindows(startActive) {
+        const moduleEntries = Object.entries(modules);
         await Promise.all(
             moduleEntries.map(async ([path, loader]) => {
                 const module = await loader();
                 const id = path.match(/\/([^/]+)\.vue$/)[1];
-                const title = module.default?.title || id;
-                const startActive = module.default?.startActive || false;
+                const title = id.replace(/([A-Z])/g, ' $1').trim();
 
-                if (!this.state.windows.find((w) => w.id === id)) {
-                    this.state.windows.push({
+                if (!windowList.value.find((w) => w.id === id)) {
+                    windowList.value.push({
                         id,
                         title,
                         component: markRaw(module.default),
                     });
-
-                    if (startActive) {
-                        this.state.activeWindow = id;
-                    }
                 }
             })
         );
+        if (windowList.value.length === 0) return;
 
-        if (!this.state.activeWindow && this.state.windows.length > 0) {
-            this.state.activeWindow = this.state.windows[0].id;
+        windowList.value.sort((a, b) => a.id.localeCompare(b.id));
+
+        if (startActive) {
+            activeWindow.value = windowList.value.find((w) => w.id === startActive)?.id;
+        } else {
+            activeWindow.value = windowList.value[0].id;
         }
 
-        this.state.windows.sort((a, b) => a.id.localeCompare(b.id));
-
-        this.state.ready = true;
+        ready.value = true;
     }
 
-    moveUp() {
-        this.state.direction = 'up';
-        this.state.activeWindow = this.state.windows[this.getCircularIndex(this.activeIndex - 1)].id;
+    function moveUp() {
+        direction.value = 'up';
+        activeWindow.value = windowList.value[getCircularIndex(activeIndex.value - 1)].id;
     }
 
-    moveDown() {
-        this.state.direction = 'down';
-        this.state.activeWindow = this.state.windows[this.getCircularIndex(this.activeIndex + 1)].id;
+    function moveDown() {
+        direction.value = 'down';
+        activeWindow.value = windowList.value[getCircularIndex(activeIndex.value + 1)].id;
     }
 
-    get totalWindows() {
-        return computed(() => this.state.windows.length).value;
+    function getCircularIndex(index) {
+        return (index + totalWindows.value) % totalWindows.value;
     }
 
-    get activeIndex() {
-        return computed(() =>
-            this.state.windows.findIndex((window) => window.id === this.state.activeWindow)
-        ).value;
-    }
+    const totalWindows = computed(() => windowList.value.length);
 
-    get windows() {
-        return this.state.windows;
-    }
+    const activeIndex = computed(() => {
+        return windowList.value.findIndex((win) => win.id === activeWindow.value)
+    });
 
-    get activeWindow() {
-        return this.state.activeWindow;
-    }
-
-    get direction() {
-        return this.state.direction
-    }
-
-    get ready() {
-        return this.state.ready;
-    }
-
-    getCircularIndex(index) {
-        return (index + this.totalWindows) % this.totalWindows;
-    }
+    return {
+        initializeWindows,
+        moveUp,
+        moveDown,
+        getCircularIndex,
+        totalWindows,
+        activeIndex,
+        windowList,
+        direction,
+        activeWindow,
+        ready,
+    };
 }
-
-const manager = new WindowManager();
-
-export default manager;

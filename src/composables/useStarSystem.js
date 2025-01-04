@@ -10,9 +10,10 @@ const options = ref({
     star_size: 0.8,
 });
 const starSystem = ref(null);
+const starCount = ref(0);
 
-let targetStarCount = 8000;
-const starIncrement = 1000;
+let targetStarCount = 10000;
+const starIncrement = 2000;
 
 export function useStarSystem() {
     async function setup() {
@@ -36,11 +37,20 @@ export function useStarSystem() {
         });
 
         starSystem.value = stars;
+        starCount.value = starSystem.value.get_num_stars();
 
-        let counter = targetStarCount/starIncrement;
+        window.addEventListener('starCountChanged', () => {
+            starCount.value = starSystem.value.get_num_stars();
+            // console.log('Updating star count to ' + starCount.value);
+        });
+
+        let counter = (targetStarCount - options.value.star_count) / starIncrement;
         function incrementStars() {
             counter -= 1;
             starSystem.value.add_stars(starIncrement);
+            // Emit event that star number has changed
+            window.dispatchEvent(new Event('starCountChanged'));
+
             if (counter > 0) {
                 setTimeout(incrementStars, 1000);
             }
@@ -60,17 +70,21 @@ export function useStarSystem() {
     }
 
     function addStars(count) {
+        console.log(count);
         starSystem.value.add_stars(count);
+        window.dispatchEvent(new Event('starCountChanged'));
     }
 
     function removeStars(count) {
         starSystem.value.remove_stars(count);
+        window.dispatchEvent(new Event('starCountChanged'));
     }
 
     return {
         canvas,
         options,
         starSystem,
+        starCount,
         setup,
         addStars,
         removeStars,

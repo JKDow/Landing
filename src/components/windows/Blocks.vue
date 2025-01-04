@@ -86,10 +86,3 @@ function shiftRight() {
     opacity: 1;
 }
 </style>
-
-<script>
-export default {
-    title: "Blocks",
-    startActive: false,
-}
-</script>

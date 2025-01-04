@@ -5,7 +5,12 @@ export default {
         './src/**/*.{vue,js,ts,jsx,tsx}'
     ],
     theme: {
-        extend: {},
+        extend: {
+            screens: {
+                '3xl': '1900px',
+                '4xl': '2500px',
+            },
+        },
     },
     plugins: [],
 }

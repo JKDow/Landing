@@ -164,4 +164,8 @@ impl StarRender for NightSky {
             .truncate(self.stars.len().saturating_sub(count as usize));
         self.star_buffer = create_star_buffer(&self.device, &self.stars);
     }
+
+    fn get_num_stars(&self) -> u32 {
+        self.stars.len() as u32
+    }
 }

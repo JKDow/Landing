@@ -97,6 +97,10 @@ impl StarSystem {
         self.sky.remove_stars(count);
     }
 
+    pub fn get_num_stars(&self) -> u32 {
+        self.sky.get_num_stars()
+    }
+
     async fn init_advanced(&mut self) -> Result<(), String> {
         let sky = NightSky::new(
             &self.canvas,

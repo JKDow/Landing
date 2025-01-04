@@ -1,17 +1,18 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted, reactive } from 'vue';
-import manager from '@/composables/useWindowManager';
+import { useWindowManager } from '@/composables/useWindowManager';
+const { windowList, ready, totalWindows, getCircularIndex, activeIndex, activeWindow, moveUp, moveDown } = useWindowManager();
 
 const visibleWindows = computed(() => {
-    if (!manager.ready) return [];
-    const range = manager.totalWindows >= 5 ? 5 : Math.min(manager.totalWindows, 3);
+    if (!ready.value) return [];
+    const range = totalWindows.value >= 5 ? 5 : Math.min(totalWindows.value, 3);
 
     const result = [];
     for (let i = -Math.floor(range / 2); i <= Math.floor(range / 2); i++) {
-        const circularIndex = manager.getCircularIndex(manager.activeIndex + i);
-        if (manager.windows[circularIndex]) {
+        const circularIndex = getCircularIndex(activeIndex.value + i);
+        if (windowList.value[circularIndex]) {
             result.push({
-                ...manager.windows[circularIndex],
+                ...windowList.value[circularIndex],
                 offset: i, // Add an offset for smooth positioning
             });
         }
@@ -20,11 +21,10 @@ const visibleWindows = computed(() => {
 });
 
 function setActive(offset) {
-    console.log(offset);
     if (offset < 0) {
-        for (let i = 0; i < Math.abs(offset); i++) manager.moveUp();
+        for (let i = 0; i < Math.abs(offset); i++) moveUp();
     } else if (offset > 0) {
-        for (let i = 0; i < offset; i++) manager.moveDown();
+        for (let i = 0; i < offset; i++) moveDown();
     }
 }
 
@@ -54,19 +54,14 @@ function getStyle(offset) {
         zIndex: visibleWindows.value.length - Math.abs(offset),
     };
 }
-
-const touchPos = reactive({
-    startY: 0,
-    endY: 0,
-});
 </script>
 
 <template>
-    <div class="w-full h-full relative lg:overflow-hidden flex flex-row lg:flex-col max-lg:gap-3 items-center" id="spinner-container"
-        @wheel.passive="handleScroll">
+    <div class="w-full h-full relative lg:overflow-hidden flex flex-row lg:flex-col max-lg:gap-3 items-center"
+        id="spinner-container" @wheel.passive="handleScroll">
         <button
             class="w-[20%] max-lg:bg-gray-600 max-lg:h-full max-lg:rounded-lg lg:w-full lg:absolute top-2 left-1/2 transform lg:-translate-x-1/2 text-white cursor-pointer z-10"
-            @click="manager.moveUp">
+            @click="moveUp">
             ▲
         </button>
         <transition-group name="spinner" tag="div"
@@ -77,8 +72,8 @@ const touchPos = reactive({
                 <button
                     class="w-full h-full py-4 rounded-lg text-white text-base flex items-center justify-center font-semibold"
                     @click="setActive(win.offset)" :class="{
-                        'bg-blue-500': manager.activeWindow === win.id,
-                        'bg-gray-600 hover:bg-gray-500': manager.activeWindow !== win.id,
+                        'bg-blue-500': activeWindow === win.id,
+                        'bg-gray-600 hover:bg-gray-500': activeWindow !== win.id,
                     }">
                     {{ win.title }}
                 </button>
@@ -92,7 +87,7 @@ const touchPos = reactive({
         </div>
         <button
             class="max-lg:bg-gray-600 max-lg:h-full max-lg:rounded-lg lg:absolute w-[20%] lg:w-full lg:bottom-2 lg:left-1/2 transform lg:-translate-x-1/2 text-center text-white cursor-pointer z-10"
-            @click="manager.moveDown">
+            @click="moveDown">
             ▼
         </button>
     </div>
