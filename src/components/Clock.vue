@@ -98,7 +98,7 @@ const days = computed(() => {
             <div v-for="day in days" :key="day.date"
                 class="flex flex-col basis-[14%] items-center border border-stone-400 rounded-lg p-1 lg:p-2 cursor-default shadow-sm hover:shadow-lg transition-shadow">
                 <div class="text-sm font-medium text-gray-600" v-text="day.day"></div>
-                <div class="mt-1 px-2 flex items-center justify-center rounded-full text-lg min-[2500px]:text-2xl font-semibold"
+                <div class="mt-1 px-1 lg:px-2 flex items-center justify-center rounded-full text-sm lg:text-lg min-[2500px]:text-2xl font-semibold"
                     :class="day.date === datetime.date ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-800'"
                     v-text="day.date"></div>
             </div>

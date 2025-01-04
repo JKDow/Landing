@@ -13,7 +13,7 @@ const decrementAmount = ref(500);
     <div class="h-full w-full flex flex-col gap-2">
         <div class="grid grid-cols-2 gap-3 h-full w-full">
             <div
-                class="border h-full w-full rounded-md border-gray-300/50 bg-stone-900 p-2 text-stone-100 flex flex-col gap-1">
+                class="border h-full w-full rounded-md border-gray-300/50 bg-stone-900 p-2 text-stone-100 flex flex-col gap-1 overflow-y-scroll">
                 <h2 class="text-2xl w-full text-center">Info</h2>
                 <p class="">These are the controls for the Star System background</p>
                 <p>
@@ -31,7 +31,7 @@ const decrementAmount = ref(500);
                 </p>
             </div>
             <div
-                class="grid grid-cols-2 grid-rows-4 gap-2 text-white border size-full rounded-md border-gray-300/50 bg-stone-900 p-2">
+                class="grid grid-cols-2 grid-rows-4 gap-2 text-white border size-full rounded-md border-gray-300/50 bg-stone-900 p-2 overflow-y-scroll lg:overflow-y-clip">
                 <div class="text-sm lg:text-base 4xl:text-xl bg-stone-700 p-3 rounded-md flex flex-col items-center justify-center gap-3">
                     <input type="range" min="100" max="2000" step="100" v-model.number="incrementAmount"
                         class="bg-gray-600 appearance-none w-full h-2 rounded-lg" />
