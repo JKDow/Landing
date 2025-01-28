@@ -7,10 +7,3 @@
         <p>Info about the app</p>
     </div>
 </template>
-
-<script>
-export default {
-    title: "Info",
-    startActive: false,
-}
-</script>

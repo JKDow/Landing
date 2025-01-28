@@ -29,10 +29,3 @@ const headingStyle = "text-lg font-semibold";
         </div>
     </div>
 </template>
-
-<script>
-export default {
-    title: "Settings",
-    startActive: false,
-}
-</script>
