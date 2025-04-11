@@ -1,5 +1,7 @@
 <script setup>
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, onUnmounted, computed } from 'vue';
+import { useEventBus } from '@/composables/useEventBus.js';
+import ServerLink from '@/components/ServerLink.vue';
 
 const lastChecked = ref(null);
 const online = ref([]);
@@ -13,11 +15,19 @@ const servers = [
     'http://localhost:5173/'
 ];
 
+const { on, off } = useEventBus();
+
 onMounted(() => {
     scanForServers();
+    on('scanServers', scanForServers);
+});
+
+onUnmounted(() => {
+    off('scanServers', scanForServers);
 });
 
 const scanForServers = async () => {
+    if (loading.value) return; // Prevent multiple scans at once
     online.value = []; // Reset the server list
     loading.value = true;
 
@@ -49,18 +59,7 @@ const scanForServers = async () => {
             </div>
         </div>
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            <div v-for="server in servers" :key="server"
-                class="flex items-center gap-3 p-4 rounded-lg shadow-md bg-gray-800">
-                <span class="w-4 h-4 rounded-full indicator" :class="online.includes(server) ? 'online' : 'offline'"
-                    title="Server status"></span>
-                <a v-if="online.includes(server)" class="text-lg font-medium text-green-400 hover:underline"
-                    :href="server" target="_blank" rel="noopener noreferrer">
-                    {{ server }}
-                </a>
-                <p v-else class="text-lg font-medium text-red-400">
-                    {{ server }}
-                </p>
-            </div>
+            <ServerLink v-for="server in servers" :key="server" :online="online.includes(server)" :server />
         </div>
         <p class="text-xl font-semibold text-gray-400">
             Online Servers: {{ online.length }} / {{ servers.length }}
@@ -69,21 +68,6 @@ const scanForServers = async () => {
 </template>
 
 <style scoped>
-.indicator {
-    position: relative;
-    display: inline-block;
-}
-
-.online {
-    background: #4caf50;
-    box-shadow: 0 0 6px rgba(76, 175, 80, 0.8);
-}
-
-.offline {
-    background: #f44336;
-    box-shadow: 0 0 6px rgba(244, 67, 54, 0.8);
-}
-
 .loader {
     border: 4px solid rgba(255, 255, 255, 0.3);
     border-top: 4px solid #4caf50;

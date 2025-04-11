@@ -11,6 +11,7 @@
     "wasm-release": "wasm-pack build --release --target web --no-typescript --out-dir ../src/wasm/ --out-name wasm ./wasm/"
   },
   "dependencies": {
+    "@vueuse/core": "^13.1.0",
     "vue": "^3.5.13",
     "vue-router": "^4.4.5"
   },
@@ -21,6 +22,7 @@
     "postcss": "^8.4.49",
     "tailwindcss": "^3.4.17",
     "vite": "^6.0.1",
+    "vite-plugin-git-revision": "^0.1.9",
     "vite-plugin-vue-devtools": "^7.6.5",
     "vite-plugin-wasm": "^3.4.1"
   }

@@ -4,11 +4,13 @@ import QuickAccess from '../components/QuickAccess.vue'
 import WindowSelector from '../components/WindowSelector.vue'
 import Card from '../components/Card.vue'
 import WindowManager from '@/components/WindowManager.vue'
+const lastUpdated = import.meta.env.VITE_LAST_UPDATED;
+const lastUpdatedDate = new Date(lastUpdated).toLocaleDateString();
 </script>
 
 <template>
     <div
-        class="flex max-lg:justify-start max-lg:items-center max-lg:gap-4 flex-col lg:grid lg:grid-cols-[2fr_5fr_2fr] lg:grid-rows-[1fr_2fr] h-full w-full">
+        class="flex max-lg:justify-start max-lg:items-center max-lg:gap-4 flex-col lg:grid lg:grid-cols-[2fr_5fr_2fr] lg:grid-rows-[1fr_2fr] h-full w-full relative">
         <!-- Empty cell -->
         <div class=""></div>
         <!-- Search Bar -->
@@ -28,5 +30,8 @@ import WindowManager from '@/components/WindowManager.vue'
         <Card outer_class="row-span-full lg:col-start-3 justify-center max-lg:hidden" height="80%" width="50%">
             <QuickAccess />
         </Card>
+        <div class="fixed bottom-0 right-0 text-center py-2 px-2 cursor-default">
+            <p class="text-sm text-gray-300">Last Updated: {{ lastUpdatedDate }}</p>
+        </div>
     </div>
 </template>

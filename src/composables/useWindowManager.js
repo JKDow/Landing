@@ -1,9 +1,18 @@
-import { markRaw, computed, ref } from 'vue';
+import { markRaw, computed, ref, watch } from 'vue';
+import { useEventBus } from './useEventBus';
+
+const { emit } = useEventBus();
 
 const windowList = ref([]);
 const activeWindow = ref(null);
 const direction = ref('up');
 const ready = ref(false);
+
+watch(activeWindow, (newVal) => {
+    if (newVal && newVal === 'DevServers') {
+        emit('scanServers');
+    }
+}, { immediate: true });
 
 const modules = import.meta.glob('@/components/windows/*.vue');
 
