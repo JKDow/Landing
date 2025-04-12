@@ -1,5 +1,6 @@
 <script setup>
 import { computed } from 'vue';
+import { useLink } from '@/composables/useLink';
 import Icon from './Icon.vue';
 
 const props = defineProps({
@@ -8,6 +9,8 @@ const props = defineProps({
         default: () => ({}),
     },
 })
+
+const { openQuickLink } = useLink();
 
 const display = computed(() => {
     return props.link.name || props.link.url || '----';
@@ -28,7 +31,8 @@ const color = computed(() => {
 </script>
 
 <template>
-    <button class="px-2 rounded-lg shadow-md w-full flex justify-start items-center gap-2 hover:scale-[102%]" :class="[color]">
+    <button @click="openQuickLink" :class="[color]"
+        class="px-2 rounded-lg shadow-md w-full flex justify-start items-center gap-2 hover:scale-[102%]">
         <div v-if="link.icon" class="pr-2 border-r border-black h-full grid place-items-center">
             <Icon :path="link.icon" />
         </div>
