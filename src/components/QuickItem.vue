@@ -31,7 +31,7 @@ const color = computed(() => {
 </script>
 
 <template>
-    <button @click="openQuickLink" :class="[color]"
+    <button @click="openQuickLink(link)" :class="[color]"
         class="px-2 rounded-lg shadow-md w-full flex justify-start items-center gap-2 hover:scale-[102%]">
         <div v-if="link.icon" class="pr-2 border-r border-black h-full grid place-items-center">
             <Icon :path="link.icon" />
